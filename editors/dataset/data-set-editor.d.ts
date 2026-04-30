@@ -17,20 +17,6 @@ export declare class DataSetEditor extends DataSetEditor_base {
     selectionList: OscdActionList;
     selectDataSetButton: OscdOutlinedButton;
     dataSetElementEditor: DataSetElementEditor;
-    /** Resets selected DataSet, if not existing in new doc
-    update(props: Map<string | number | symbol, unknown>): void {
-      if (props.has('doc') && this.selectedDataSet) {
-        const newDataSet = updateElementReference(this.doc, this.selectedDataSet);
-  
-        this.selectedDataSet = newDataSet ?? undefined;
-  
-        /* TODO(Jakob Vogelsang): fix when action-list is activable
-        if (!newDataSet && this.selectionList && this.selectionList.selected)
-          (this.selectionList.selected as ListItem).selected = false;
-      }
-  
-      super.update(props);
-    } */
     private renderElementEditorContainer;
     private renderSelectionList;
     private renderToggleButton;

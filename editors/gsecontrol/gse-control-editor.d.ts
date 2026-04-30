@@ -21,26 +21,6 @@ export declare class GseControlEditor extends BaseElementEditor {
     selectGSEControlButton: OscdOutlinedButton;
     gseControlElementEditor: GseControlElementEditor;
     dataSetElementEditor: DataSetElementEditor;
-    /** Resets selected GOOSE and its DataSet, if not existing in new doc
-    update(props: Map<string | number | symbol, unknown>): void {
-      super.update(props);
-  
-      if (props.has('doc') && this.selectCtrlBlock) {
-        const newGseControl = updateElementReference(
-          this.doc,
-          this.selectCtrlBlock
-        );
-  
-        this.selectCtrlBlock = newGseControl ?? undefined;
-        this.selectedDataSet = this.selectCtrlBlock
-          ? updateElementReference(this.doc, this.selectedDataSet!)
-          : undefined;
-  
-        /* TODO(Jakob Vogelsang): comment when action-list is activeable
-        if (!newGseControl && this.selectionList && this.selectionList.selected)
-          (this.selectionList.selected as ListItem).selected = false;
-      }
-    } */
     protected renderElementEditorContainer(): TemplateResult;
     private renderSelectionList;
     private renderToggleButton;

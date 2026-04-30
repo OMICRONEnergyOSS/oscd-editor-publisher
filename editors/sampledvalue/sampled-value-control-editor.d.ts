@@ -21,30 +21,6 @@ export declare class SampledValueControlEditor extends BaseElementEditor {
     selectSampledValueControlButton: OscdOutlinedButton;
     elementContainer?: SampledValueControlElementEditor;
     dataSetElementEditor: DataSetElementEditor;
-    /** Resets selected SMV and its DataSet, if not existing in new doc
-    update(props: Map<string | number | symbol, unknown>): void {
-      super.update(props);
-  
-      if (props.has('doc') && this.selectCtrlBlock) {
-        const newSampledValueControl = updateElementReference(
-          this.doc,
-          this.selectCtrlBlock
-        );
-  
-        this.selectCtrlBlock = newSampledValueControl ?? undefined;
-        this.selectedDataSet = this.selectCtrlBlock
-          ? updateElementReference(this.doc, this.selectedDataSet!)
-          : undefined;
-  
-        // TODO(JakobVogelsang): add activeable to ActionList
-        /* if (
-          !newSampledValueControl &&
-          this.selectionList &&
-          this.selectionList.selected
-        )
-          (this.selectionList.selected as ListItem).selected = false;
-      }
-    } */
     private renderElementEditorContainer;
     private renderSelectionList;
     private renderToggleButton;

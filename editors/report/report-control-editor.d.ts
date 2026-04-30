@@ -21,30 +21,6 @@ export declare class ReportControlEditor extends BaseElementEditor {
     selectReportControlButton: OscdOutlinedButton;
     rpControlElementEditor: ReportControlElementEditor;
     dataSetElementEditor: DataSetElementEditor;
-    /** Resets selected Report and its DataSet, if not existing in new doc
-    update(props: Map<string | number | symbol, unknown>): void {
-      super.update(props);
-  
-      if (props.has('doc') && this.selectCtrlBlock) {
-        const newReportControl = updateElementReference(
-          this.doc,
-          this.selectCtrlBlock
-        );
-  
-        this.selectCtrlBlock = newReportControl ?? undefined;
-        this.selectedDataSet = this.selectCtrlBlock
-          ? updateElementReference(this.doc, this.selectedDataSet!)
-          : undefined;
-  
-        /* TODO(Jakob Vogelsang): fix when action-list is activable
-        if (
-          !newReportControl &&
-          this.selectionList &&
-          this.selectionList.selected
-        )
-          (this.selectionList.selected as ListItem).selected = false;
-      }
-    } */
     private renderElementEditorContainer;
     private renderSelectionList;
     private renderToggleButton;

@@ -36714,7 +36714,6 @@ __decorate([
     e$3('div')
 ], OscdTreeGrid.prototype, "container", void 0);
 
-/* eslint-disable import/no-extraneous-dependencies */
 function findFcda(dataSet, attr) {
     return Array.from(dataSet.children).find(fcda => fcda.tagName === 'FCDA' &&
         fcda.getAttribute('ldInst') === attr.ldInst &&
@@ -36735,31 +36734,34 @@ function addFCDAs(dataSet, paths) {
         const prefix = anyLn?.getAttribute('prefix') ?? '';
         const lnClass = anyLn?.getAttribute('lnClass');
         const lnInst = anyLn?.getAttribute('inst') ?? '';
-        // eslint-disable-next-line no-continue
-        if (!ldInst || !lnClass)
+        if (!ldInst || !lnClass) {
             continue;
+        }
         let doName = '';
         let daName = '';
         let fc = '';
         for (const ancestor of path) {
-            // eslint-disable-next-line no-continue
-            if (!['DO', 'DA', 'SDO', 'BDA'].includes(ancestor.tagName))
+            if (!['DO', 'DA', 'SDO', 'BDA'].includes(ancestor.tagName)) {
                 continue;
+            }
             const name = ancestor.getAttribute('name');
-            if (ancestor.tagName === 'DO')
+            if (ancestor.tagName === 'DO') {
                 doName = name;
-            if (ancestor.tagName === 'SDO')
+            }
+            if (ancestor.tagName === 'SDO') {
                 doName = `${doName}.${name}`;
+            }
             if (ancestor.tagName === 'DA') {
                 daName = name;
                 fc = ancestor.getAttribute('fc') ?? '';
             }
-            if (ancestor.tagName === 'BDA')
+            if (ancestor.tagName === 'BDA') {
                 daName = `${daName}.${name}`;
+            }
         }
-        // eslint-disable-next-line no-continue
-        if (!doName || !daName || !fc)
+        if (!doName || !daName || !fc) {
             continue;
+        }
         const fcdaAttrs = {
             ldInst,
             prefix,
@@ -36769,9 +36771,9 @@ function addFCDAs(dataSet, paths) {
             daName,
             fc,
         };
-        // eslint-disable-next-line no-continue
-        if (findFcda(dataSet, fcdaAttrs))
+        if (findFcda(dataSet, fcdaAttrs)) {
             continue;
+        }
         actions.push({
             parent: dataSet,
             node: createElement$1(dataSet.ownerDocument, 'FCDA', fcdaAttrs),
@@ -36790,24 +36792,26 @@ function addFCDOs(dataSet, fcPaths) {
         const prefix = anyLn?.getAttribute('prefix') ?? '';
         const lnClass = anyLn?.getAttribute('lnClass');
         const lnInst = anyLn?.getAttribute('inst') ?? '';
-        // eslint-disable-next-line no-continue
-        if (!ldInst || !lnClass)
+        if (!ldInst || !lnClass) {
             continue;
+        }
         let doName = '';
         const { fc } = fcPath;
         for (const ancestor of fcPath.path) {
-            // eslint-disable-next-line no-continue
-            if (!['DO', 'SDO'].includes(ancestor.tagName))
+            if (!['DO', 'SDO'].includes(ancestor.tagName)) {
                 continue;
+            }
             const name = ancestor.getAttribute('name');
-            if (ancestor.tagName === 'DO')
+            if (ancestor.tagName === 'DO') {
                 doName = name;
-            if (ancestor.tagName === 'SDO')
+            }
+            if (ancestor.tagName === 'SDO') {
                 doName = `${doName}.${name}`;
+            }
         }
-        // eslint-disable-next-line no-continue
-        if (!doName)
+        if (!doName) {
             continue;
+        }
         const fcdaAttrs = {
             ldInst,
             prefix,
@@ -36816,9 +36820,9 @@ function addFCDOs(dataSet, fcPaths) {
             doName,
             fc,
         };
-        // eslint-disable-next-line no-continue
-        if (findFcda(dataSet, fcdaAttrs))
+        if (findFcda(dataSet, fcdaAttrs)) {
             continue;
+        }
         actions.push({
             parent: dataSet,
             node: createElement$1(dataSet.ownerDocument, 'FCDA', fcdaAttrs),
@@ -36830,14 +36834,16 @@ function addFCDOs(dataSet, fcPaths) {
 function getFcdaInstDesc(fcda) {
     const [doName, daName] = ['doName', 'daName'].map(attr => fcda.getAttribute(attr));
     const ied = fcda.closest('IED');
-    if (!ied)
+    if (!ied) {
         return {};
+    }
     const anyLn = Array.from(ied.querySelectorAll(`:scope > AccessPoint > Server > LDevice[inst="${fcda.getAttribute('ldInst')}"] > LN, :scope > AccessPoint > Server > LDevice[inst="${fcda.getAttribute('ldInst')}"] > LN0`)).find(lN => (lN.getAttribute('prefix') ?? '') ===
         (fcda.getAttribute('prefix') ?? '') &&
         lN.getAttribute('lnClass') === (fcda.getAttribute('lnClass') ?? '') &&
         (lN.getAttribute('inst') ?? '') === (fcda.getAttribute('lnInst') ?? ''));
-    if (!anyLn)
+    if (!anyLn) {
         return {};
+    }
     let descs = {};
     const ldDesc = anyLn.closest('LDevice').getAttribute('desc');
     descs = { ...descs, ...(ldDesc && ldDesc !== '' && { LDevice: ldDesc }) };
@@ -36846,8 +36852,9 @@ function getFcdaInstDesc(fcda) {
     const doNames = doName.split('.');
     const daNames = daName?.split('.');
     const doi = anyLn.querySelector(`:scope > DOI[name="${doNames[0]}"`);
-    if (!doi)
+    if (!doi) {
         return descs;
+    }
     let doiDesc = doi?.getAttribute('desc');
     if (!doiDesc) {
         doiDesc =
@@ -36861,8 +36868,9 @@ function getFcdaInstDesc(fcda) {
         .slice(1)
         .forEach(sdiName => {
         const sdi = previousDI.querySelector(`:scope > SDI[name="${sdiName}"]`);
-        if (sdi)
+        if (sdi) {
             previousDI = sdi;
+        }
         let sdiDesc = sdi?.getAttribute('desc');
         if (!sdiDesc) {
             sdiDesc =
@@ -36875,28 +36883,31 @@ function getFcdaInstDesc(fcda) {
                 ...(sdiDesc && sdiDesc !== '' && { SDI: [sdiDesc] }),
             };
         }
-        else if (sdiDesc)
+        else if (sdiDesc) {
             descs.SDI.push(sdiDesc);
+        }
     });
-    if (!daName || !daNames)
+    if (!daName || !daNames) {
         return descs;
+    }
     // ix and array elements not supported
     const lastdaName = daNames?.slice(daNames.length - 1);
     const dai = previousDI.querySelector(`:scope > DAI[name="${lastdaName}"]`);
-    if (!dai)
+    if (!dai) {
         return descs;
+    }
     const daiDesc = dai.getAttribute('desc');
     descs = { ...descs, ...(daiDesc && daiDesc !== '' && { DAI: daiDesc }) };
     return descs;
 }
 
-/* eslint-disable import/no-extraneous-dependencies */
 function dataAttributeObject(da, daiOrsdi) {
     const tree = {};
     const children = {};
     const daType = da.ownerDocument.querySelector(`DAType[id="${da.getAttribute('type')}"]`);
-    if (!daType)
+    if (!daType) {
         return tree;
+    }
     Array.from(daType.querySelectorAll(':scope > BDA')).forEach(bda => {
         const name = bda.getAttribute('name');
         const sdiOrDai = daiOrsdi?.querySelector(`:scope > SDI[name="${name}"], :scope > DAI[name="${name}"]`) ?? undefined;
@@ -36924,8 +36935,9 @@ function subDataObjectsObject$1(sdo, sDiOrDai) {
     const tree = {};
     const children = {};
     const doType = sdo.ownerDocument.querySelector(`DOType[id="${sdo.getAttribute('type')}"]`);
-    if (!doType)
+    if (!doType) {
         return tree;
+    }
     Array.from(doType.querySelectorAll(':scope > SDO, :scope > DA')).forEach(sDoOrDa => {
         if (sDoOrDa.tagName === 'SDO') {
             const name = sDoOrDa.getAttribute('name') ?? 'UNKNOWN_SDO';
@@ -36970,8 +36982,9 @@ function dataObjectObject$1(dO, dOI) {
     const tree = {};
     const children = {};
     const doType = dO.ownerDocument.querySelector(`DOType[id="${dO.getAttribute('type')}"]`);
-    if (!doType)
+    if (!doType) {
         return tree;
+    }
     Array.from(doType.querySelectorAll(':scope > SDO, :scope > DA')).forEach(sDoOrDa => {
         if (sDoOrDa.tagName === 'SDO') {
             const name = sDoOrDa.getAttribute('name') ?? 'UNKNOWN_SDO';
@@ -37011,8 +37024,9 @@ function anyLnObject$1(anyLn) {
     const tree = {};
     const children = {};
     const lnType = anyLn.ownerDocument.querySelector(`LNodeType[id="${anyLn.getAttribute('lnType')}"]`);
-    if (!lnType)
+    if (!lnType) {
         return tree;
+    }
     Array.from(lnType.querySelectorAll('DO')).forEach(dO => {
         const name = dO.getAttribute('name') ?? 'UNKNOWN_DO';
         const dOi = anyLn.querySelector(`:scope > DOI[name="${name}"]`) ?? undefined;
@@ -37053,13 +37067,13 @@ function dataAttributeTree(server) {
     return tree;
 }
 
-/* eslint-disable import/no-extraneous-dependencies */
 function subDataObjectsObject(sdo, sDiOrDai) {
     const tree = {};
     const children = {};
     const doType = sdo.ownerDocument.querySelector(`DOType[id="${sdo.getAttribute('type')}"]`);
-    if (!doType)
+    if (!doType) {
         return tree;
+    }
     Array.from(doType.querySelectorAll(':scope > SDO, :scope > DA')).forEach(sDoOrDa => {
         if (sDoOrDa.tagName === 'SDO') {
             const name = sDoOrDa.getAttribute('name') ?? 'UNKNOWN_SDO';
@@ -37089,8 +37103,9 @@ function dataObjectObject(dO, dOI) {
     const tree = {};
     const children = {};
     const doType = dO.ownerDocument.querySelector(`DOType[id="${dO.getAttribute('type')}"]`);
-    if (!doType)
+    if (!doType) {
         return tree;
+    }
     Array.from(doType.querySelectorAll(':scope > SDO, :scope > DA')).forEach(sDoOrDa => {
         if (sDoOrDa.tagName === 'SDO') {
             const name = sDoOrDa.getAttribute('name') ?? 'UNKNOWN_SDO';
@@ -37120,8 +37135,9 @@ function anyLnObject(anyLn) {
     const tree = {};
     const children = {};
     const lnType = anyLn.ownerDocument.querySelector(`LNodeType[id="${anyLn.getAttribute('lnType')}"]`);
-    if (!lnType)
+    if (!lnType) {
         return tree;
+    }
     Array.from(lnType.querySelectorAll(':scope > DO')).forEach(dO => {
         const name = dO.getAttribute('name') ?? 'UNKNOWN_DO';
         const dOi = anyLn.querySelector(`:scope > DOI[name="${name}"]`) ?? undefined;
@@ -37169,8 +37185,9 @@ function dataAttributePaths(doc, paths) {
         for (const section of path) {
             const [tag, id] = section.split(': ');
             const ancestor = find(doc, tag, id);
-            if (ancestor)
+            if (ancestor) {
                 daPath.push(ancestor);
+            }
         }
         daPaths.push(daPath);
     }
@@ -37183,31 +37200,40 @@ function functionalConstraintPaths(doc, paths) {
         let fc = '';
         for (const section of path) {
             const [tag, id] = section.split(': ');
-            if (tag === 'FC')
+            if (tag === 'FC') {
                 fc = id;
+            }
             const ancestor = find(doc, tag, id);
-            if (ancestor)
+            if (ancestor) {
                 doPath.push(ancestor);
+            }
         }
         fcPaths.push({ path: doPath, fc });
     }
     return fcPaths;
 }
 function loadIcon(percent) {
-    if (percent < 0.1)
+    if (percent < 0.1) {
         return 'circle';
-    if (percent < 0.2)
+    }
+    if (percent < 0.2) {
         return 'clock_loader_10';
-    if (percent < 0.4)
+    }
+    if (percent < 0.4) {
         return 'clock_loader_20';
-    if (percent < 0.6)
+    }
+    if (percent < 0.6) {
         return 'clock_loader_40';
-    if (percent < 0.8)
+    }
+    if (percent < 0.8) {
         return 'clock_loader_60';
-    if (percent < 0.9)
+    }
+    if (percent < 0.9) {
         return 'clock_loader_80';
-    if (percent < 1)
+    }
+    if (percent < 1) {
         return 'clock_loader_90';
+    }
     return 'stroke_full';
 }
 class DataSetElementEditor extends ScopedElementsMixin(i$3) {
@@ -37230,22 +37256,28 @@ class DataSetElementEditor extends ScopedElementsMixin(i$3) {
         this.element = null; // removes inputs and forces a re-render
         // reset save button
         this.someDiffOnInputs = false;
-        for (const input of this.inputs)
-            if (input instanceof OscdSclTextField)
+        for (const input of this.inputs) {
+            if (input instanceof OscdSclTextField) {
                 input.reset();
+            }
+        }
     }
     onInputChange() {
-        if (!this.element)
+        if (!this.element) {
             return;
+        }
         this.someDiffOnInputs = Array.from(this.inputs ?? []).some(input => this.element?.getAttribute(input.label) !== input.value);
     }
     saveChanges() {
-        if (!this.element)
+        if (!this.element) {
             return;
+        }
         const attributes = {};
-        for (const input of this.inputs ?? [])
-            if (this.element.getAttribute(input.label) !== input.value)
+        for (const input of this.inputs ?? []) {
+            if (this.element.getAttribute(input.label) !== input.value) {
                 attributes[input.label] = input.value;
+            }
+        }
         this.dispatchEvent(newEditEventV2(updateDataSet({ element: this.element, attributes }), {
             title: `Update DataSet ${identity(this.element)}`,
         }));
@@ -37308,7 +37340,7 @@ class DataSetElementEditor extends ScopedElementsMixin(i$3) {
                     },
                 },
             ];
-            if (i > 0)
+            if (i > 0) {
                 actions.push({
                     icon: 'text_select_move_up',
                     label: 'move up',
@@ -37316,7 +37348,8 @@ class DataSetElementEditor extends ScopedElementsMixin(i$3) {
                         this.onMoveFCDAUp(fcda);
                     },
                 });
-            if (arr.length !== i + 1)
+            }
+            if (arr.length !== i + 1) {
                 actions.push({
                     icon: 'text_select_move_down',
                     label: 'move down',
@@ -37324,6 +37357,7 @@ class DataSetElementEditor extends ScopedElementsMixin(i$3) {
                         this.onMoveFCDADown(fcda);
                     },
                 });
+            }
             const description = Object.values(getFcdaInstDesc(fcda))
                 .flat(Infinity)
                 .join(' > ');
@@ -37343,6 +37377,9 @@ class DataSetElementEditor extends ScopedElementsMixin(i$3) {
     }
     renderDataObjectPicker() {
         const server = this.element?.closest('Server');
+        if (!server) {
+            return b ``;
+        }
         return b ` <oscd-text-button
         id="doPickerButton"
         icon="playlist_add"
@@ -37371,6 +37408,9 @@ class DataSetElementEditor extends ScopedElementsMixin(i$3) {
     }
     renderDataAttributePicker() {
         const server = this.element?.closest('Server');
+        if (!server) {
+            return b ``;
+        }
         return b ` <oscd-text-button
         id="daPickerButton"
         icon="playlist_add"
@@ -37407,8 +37447,9 @@ class DataSetElementEditor extends ScopedElementsMixin(i$3) {
     `;
     }
     renderLimits() {
-        if (!this.element)
+        if (!this.element) {
             return b ``;
+        }
         const { max } = maxAttributes(this.element);
         const is = this.fcdaCount;
         return b `<h3
@@ -37461,11 +37502,12 @@ class DataSetElementEditor extends ScopedElementsMixin(i$3) {
     </h2>`;
     }
     render() {
-        if (this.element)
+        if (this.element) {
             return b `<div class="content">
         ${this.renderHeader()}${this.renderDataSetAttributes()}
         ${this.renderLimits()}${this.renderDataPickers()}${this.renderFCDAList()}
       </div>`;
+        }
         return b `<div class="content">${this.renderHeader()}</div>`;
     }
 }
@@ -37583,8 +37625,9 @@ __decorate([
 
 function pathIdentity(element) {
     const id = identity(element);
-    if (Number.isNaN(id))
+    if (Number.isNaN(id)) {
         return 'UNDEFINED';
+    }
     const paths = id.split('>');
     paths.pop();
     return paths.join('>');
@@ -37669,7 +37712,7 @@ const styles$3 = i$6 `
 `;
 
 class DataSetEditor extends ScopedElementsMixin(i$3) {
-    /** Resets selected DataSet, if not existing in new doc
+    /* Resets selected DataSet, if not existing in new doc
     update(props: Map<string | number | symbol, unknown>): void {
       if (props.has('doc') && this.selectedDataSet) {
         const newDataSet = updateElementReference(this.doc, this.selectedDataSet);
@@ -37684,13 +37727,14 @@ class DataSetEditor extends ScopedElementsMixin(i$3) {
       super.update(props);
     } */
     renderElementEditorContainer() {
-        if (this.selectedDataSet)
+        if (this.selectedDataSet) {
             return b `<div class="elementeditorcontainer">
         <data-set-element-editor
           .element=${this.selectedDataSet}
           .docVersion=${this.docVersion}
         ></data-set-element-editor>
       </div>`;
+        }
         return b ``;
     }
     renderSelectionList() {
@@ -37706,10 +37750,11 @@ class DataSetEditor extends ScopedElementsMixin(i$3) {
                         icon: 'playlist_add',
                         callback: () => {
                             const insertDataSet = createDataSet(ied);
-                            if (insertDataSet)
+                            if (insertDataSet) {
                                 this.dispatchEvent(newEditEventV2(insertDataSet, {
                                     title: `Create New DataSet`,
                                 }));
+                            }
                         },
                     },
                 ],
@@ -37718,10 +37763,12 @@ class DataSetEditor extends ScopedElementsMixin(i$3) {
                 headline: `${dataSet.getAttribute('name')}`,
                 supportingText: `${pathIdentity(dataSet)}`,
                 primaryAction: () => {
-                    if (this.selectedDataSet === dataSet)
+                    if (this.selectedDataSet === dataSet) {
                         return;
-                    if (this.dataSetElementEditor)
+                    }
+                    if (this.dataSetElementEditor) {
                         this.dataSetElementEditor.resetInputs();
+                    }
                     this.selectedDataSet = dataSet;
                     this.selectionList.classList.add('hidden');
                     this.selectDataSetButton.classList.remove('hidden');
@@ -37758,8 +37805,9 @@ class DataSetEditor extends ScopedElementsMixin(i$3) {
     >`;
     }
     render() {
-        if (!this.doc)
+        if (!this.doc) {
             return b `<div>No SCL loaded</div>`;
+        }
         return b `${this.renderToggleButton()}
       <div class="section">
         ${this.renderSelectionList()}${this.renderElementEditorContainer()}
@@ -39681,12 +39729,14 @@ function checkGSEDiff(gSE, attrs, instType) {
         const oldValue = pElementContent$3(gSE, key);
         return oldValue !== value;
     });
-    if (valueDiff)
+    if (valueDiff) {
         return valueDiff;
+    }
     const instTypeDiff = Object.keys(attrs).some(key => {
         const pType = pElement$1(gSE, key);
-        if (!pType)
+        if (!pType) {
             return false;
+        }
         const hasInstType = pType.hasAttribute('xsi:type');
         return hasInstType !== !!instType;
     });
@@ -39726,34 +39776,45 @@ class GseControlElementEditor extends ScopedElementsMixin(i$3) {
         // resets save button
         this.gSEdiff = false;
         this.gSEControlDiff = false;
-        if (type === 'GSEControl')
-            for (const input of this.gSEControlInputs)
-                if (input instanceof OscdSclTextField)
+        if (type === 'GSEControl') {
+            for (const input of this.gSEControlInputs) {
+                if (input instanceof OscdSclTextField) {
                     input.reset();
-        if (type === 'GSE')
-            for (const input of this.gSEInputs)
-                if (input instanceof OscdSclTextField)
+                }
+            }
+        }
+        if (type === 'GSE') {
+            for (const input of this.gSEInputs) {
+                if (input instanceof OscdSclTextField) {
                     input.reset();
+                }
+            }
+        }
     }
     onGSEControlInputChange() {
-        if (!this.element)
+        if (!this.element) {
             return;
+        }
         if (Array.from(this.gSEControlInputs ?? []).some(input => !input.reportValidity())) {
             this.gSEControlDiff = false;
             return;
         }
         const gSEControlAttrs = {};
-        for (const input of this.gSEControlInputs ?? [])
+        for (const input of this.gSEControlInputs ?? []) {
             gSEControlAttrs[input.label] = input.value;
+        }
         this.gSEControlDiff = Array.from(this.gSEControlInputs ?? []).some(input => this.element.getAttribute(input.label) !== input.value);
     }
     saveGSEControlChanges() {
-        if (!this.element)
+        if (!this.element) {
             return;
+        }
         const gSEControlAttrs = {};
-        for (const input of this.gSEControlInputs ?? [])
-            if (this.element?.getAttribute(input.label) !== input.value)
+        for (const input of this.gSEControlInputs ?? []) {
+            if (this.element?.getAttribute(input.label) !== input.value) {
                 gSEControlAttrs[input.label] = input.value;
+            }
+        }
         this.dispatchEvent(newEditEventV2(updateGSEControl({
             element: this.element,
             attributes: gSEControlAttrs,
@@ -39762,39 +39823,50 @@ class GseControlElementEditor extends ScopedElementsMixin(i$3) {
         this.onGSEControlInputChange();
     }
     onGSEInputChange() {
-        if (!this.element)
+        if (!this.element) {
             return;
+        }
         if (Array.from(this.gSEInputs ?? []).some(input => !input.reportValidity())) {
             this.gSEdiff = false;
             return;
         }
         const gSEAttrs = {};
-        for (const input of this.gSEInputs ?? [])
+        for (const input of this.gSEInputs ?? []) {
             gSEAttrs[input.label] = input.value;
+        }
         this.gSEdiff = checkGSEDiff(this.gSE, gSEAttrs, this.instType?.checked);
     }
     saveGSEChanges() {
-        if (!this.gSE)
+        if (!this.gSE) {
             return;
+        }
         const options = { address: {}, timing: {} };
         for (const input of this.gSEInputs ?? []) {
-            if (input.label === 'MAC-Address' && input.value)
+            if (input.label === 'MAC-Address' && input.value) {
                 options.address.mac = input.value;
-            if (input.label === 'APPID' && input.value)
+            }
+            if (input.label === 'APPID' && input.value) {
                 options.address.appId = input.value;
-            if (input.label === 'VLAN-ID' && input.value)
+            }
+            if (input.label === 'VLAN-ID' && input.value) {
                 options.address.vlanId = input.value;
-            if (input.label === 'VLAN-PRIORITY' && input.value)
+            }
+            if (input.label === 'VLAN-PRIORITY' && input.value) {
                 options.address.vlanPriority = input.value;
-            if (input.label === 'MinTime' && input.value)
+            }
+            if (input.label === 'MinTime' && input.value) {
                 options.timing.MinTime = input.value;
-            if (input.label === 'MaxTime' && input.value)
+            }
+            if (input.label === 'MaxTime' && input.value) {
                 options.timing.MaxTime = input.value;
+            }
         }
-        if (this.instType?.checked === true)
+        if (this.instType?.checked === true) {
             options.address.instType = true;
-        else if (this.instType?.checked === false)
+        }
+        else if (this.instType?.checked === false) {
             options.address.instType = false;
+        }
         this.dispatchEvent(newEditEventV2(changeGSEContent(this.gSE, options), {
             title: `Update GSE ${identity(this.gSE)}`,
         }));
@@ -39803,20 +39875,22 @@ class GseControlElementEditor extends ScopedElementsMixin(i$3) {
     }
     renderGseContent() {
         const { gSE } = this;
-        if (!gSE)
+        if (!gSE) {
             return b `<div class="content">
         <h3>
           <div>Communication Settings (GSE)</div>
           <div class="headersubtitle">No connection to SubNetwork</div>
         </h3>
       </div>`;
+        }
         const minTime = gSE.querySelector('MinTime')?.innerHTML.trim() ?? null;
         const maxTime = gSE.querySelector('MaxTime')?.innerHTML.trim() ?? null;
         const hasInstType = Array.from(gSE.querySelectorAll('Address > P')).some(pType => pType.getAttribute('xsi:type'));
         const attributes = {};
         ['MAC-Address', 'APPID', 'VLAN-ID', 'VLAN-PRIORITY'].forEach(key => {
-            if (!attributes[key])
+            if (!attributes[key]) {
                 attributes[key] = pElementContent$2(gSE, key);
+            }
         });
         return b `<div class="content gse">
       <h3>Communication Settings (GSE)</h3>
@@ -39956,8 +40030,9 @@ class GseControlElementEditor extends ScopedElementsMixin(i$3) {
     </div>`;
     }
     render() {
-        if (!this.element)
+        if (!this.element) {
             return b `<h2 style="display: flex;">No GSEControl selected</h2>`;
+        }
         return b `<h2 style="display: flex;">
         <div style="flex:auto">
           <div>GSEControl</div>
@@ -40068,8 +40143,9 @@ __decorate([
 class BaseElementEditor extends ScopedElementsMixin(i$3) {
     selectDataSet(dataSet) {
         const name = dataSet.getAttribute('name');
-        if (!name || !this.selectCtrlBlock)
+        if (!name || !this.selectCtrlBlock) {
             return;
+        }
         this.dispatchEvent(newEditEventV2({
             element: this.selectCtrlBlock,
             attributes: { datSet: name },
@@ -40079,14 +40155,17 @@ class BaseElementEditor extends ScopedElementsMixin(i$3) {
     }
     addNewDataSet(control) {
         const parent = control.parentElement;
-        if (!parent)
+        if (!parent) {
             return;
+        }
         const insert = createDataSet(parent);
-        if (!insert)
+        if (!insert) {
             return;
+        }
         const newName = insert.node.getAttribute('name');
-        if (!newName)
+        if (!newName) {
             return;
+        }
         const update = { element: control, attributes: { datSet: newName } };
         this.dispatchEvent(newEditEventV2([insert, update], { title: 'Add New Data Set' }));
         this.selectedDataSet = this.selectCtrlBlock?.parentElement?.querySelector(`:scope > DataSet[name="${this.selectCtrlBlock.getAttribute('datSet')}"]`);
@@ -40103,7 +40182,11 @@ class BaseElementEditor extends ScopedElementsMixin(i$3) {
             },
         }));
         return b `<oscd-dialog class="dialog select">
-      <oscd-action-list slot="content" .items=${items} filterable></oscd-action-list>
+      <oscd-action-list
+        slot="content"
+        .items=${items}
+        filterable
+      ></oscd-action-list>
     </oscd-dialog>`;
     }
     renderDataSetElementContainer() {
@@ -40160,7 +40243,7 @@ __decorate([
 ], BaseElementEditor.prototype, "changeDataSet", void 0);
 
 class GseControlEditor extends BaseElementEditor {
-    /** Resets selected GOOSE and its DataSet, if not existing in new doc
+    /* Resets selected GOOSE and its DataSet, if not existing in new doc
     update(props: Map<string | number | symbol, unknown>): void {
       super.update(props);
   
@@ -40181,7 +40264,7 @@ class GseControlEditor extends BaseElementEditor {
       }
     } */
     renderElementEditorContainer() {
-        if (this.selectCtrlBlock !== undefined)
+        if (this.selectCtrlBlock !== undefined) {
             return b `<div class="elementeditorcontainer">
         ${this.renderDataSetElementContainer()}
         <gse-control-element-editor
@@ -40190,6 +40273,7 @@ class GseControlEditor extends BaseElementEditor {
           .docVersion=${this.docVersion}
         ></gse-control-element-editor>
       </div>`;
+        }
         return b ``;
     }
     renderSelectionList() {
@@ -40205,10 +40289,11 @@ class GseControlEditor extends BaseElementEditor {
                         icon: 'playlist_add',
                         callback: () => {
                             const insertGseControl = createGSEControl(ied);
-                            if (insertGseControl)
+                            if (insertGseControl) {
                                 this.dispatchEvent(newEditEventV2(insertGseControl, {
                                     title: 'Create New GSEControl',
                                 }));
+                            }
                         },
                     },
                 ],
@@ -40217,12 +40302,15 @@ class GseControlEditor extends BaseElementEditor {
                 headline: `${gseControl.getAttribute('name')}`,
                 supportingText: `${pathIdentity(gseControl)}`,
                 primaryAction: () => {
-                    if (this.selectCtrlBlock === gseControl)
+                    if (this.selectCtrlBlock === gseControl) {
                         return;
-                    if (this.gseControlElementEditor)
+                    }
+                    if (this.gseControlElementEditor) {
                         this.gseControlElementEditor.resetInputs();
-                    if (this.dataSetElementEditor)
+                    }
+                    if (this.dataSetElementEditor) {
                         this.dataSetElementEditor.resetInputs();
+                    }
                     this.selectCtrlBlock = gseControl;
                     this.selectedDataSet =
                         gseControl.parentElement?.querySelector(`DataSet[name="${gseControl.getAttribute('datSet')}"]`) ?? null;
@@ -40261,8 +40349,9 @@ class GseControlEditor extends BaseElementEditor {
     >`;
     }
     render() {
-        if (!this.doc)
+        if (!this.doc) {
             return b `No SCL loaded`;
+        }
         return b `${this.renderToggleButton()}
       <div class="section">
         ${this.renderSelectionList()}${this.renderElementEditorContainer()}
@@ -40335,7 +40424,6 @@ __decorate([
 function createElement(doc, tag, attrs) {
     const element = doc.createElementNS(doc.documentElement.namespaceURI, tag);
     Object.entries(attrs)
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         .filter(([_, value]) => value !== null)
         .forEach(([name, value]) => element.setAttribute(name, value));
     return element;
@@ -40343,10 +40431,12 @@ function createElement(doc, tag, attrs) {
 /** @returns action to update max clients in ReportControl element */
 function updateMaxClients(reportControl, max) {
     const rptEnabled = reportControl.querySelector(':scope > RptEnabled');
-    if (rptEnabled && !max)
+    if (rptEnabled && !max) {
         return { node: rptEnabled };
-    if (!rptEnabled && !max)
+    }
+    if (!rptEnabled && !max) {
         return null;
+    }
     if (!rptEnabled && max) {
         const newRptEnabled = createElement(reportControl.ownerDocument, 'RptEnabled', { max });
         return {
@@ -40376,14 +40466,17 @@ const trgOpsHelpers = {
     gi: 'Allow trigger Report manually',
 };
 function checkRptEnabledValidity(rptEnabled, input) {
-    if (!input.checkValidity())
+    if (!input.checkValidity()) {
         return false;
-    if (!rptEnabled)
+    }
+    if (!rptEnabled) {
         return true;
+    }
     const clientLNs = Array.from(rptEnabled.querySelectorAll(':scope > ClientLN'));
     const maxRpt = input.value ?? '0';
-    if (clientLNs.length <= parseInt(maxRpt, 10))
+    if (clientLNs.length <= parseInt(maxRpt, 10)) {
         return true;
+    }
     input.setCustomValidity(`There are ${clientLNs.length} clientLNs`);
     return false;
 }
@@ -40402,25 +40495,31 @@ class ReportControlElementEditor extends ScopedElementsMixin(i$3) {
         this.optFieldsDiff = false;
         this.trgOpsDiff = false;
         this.reportControlDiff = false;
-        for (const input of this.reportControlInputs)
-            if (input instanceof OscdSclTextField)
+        for (const input of this.reportControlInputs) {
+            if (input instanceof OscdSclTextField) {
                 input.reset();
+            }
+        }
     }
     onOptFieldsInputChange() {
         const optFields = this.element.querySelector(':scope > OptFields');
         const optFieldsAttrs = {};
-        for (const input of this.optFieldsInputs)
+        for (const input of this.optFieldsInputs) {
             optFieldsAttrs[input.label] = input.value;
+        }
         this.optFieldsDiff = Array.from(this.optFieldsInputs).some(input => optFields?.getAttribute(input.label) !== input.value);
     }
     saveOptFieldChanges() {
-        if (!this.element)
+        if (!this.element) {
             return;
+        }
         const optFields = this.element.querySelector(':scope > OptFields');
         const optFieldAttrs = {};
-        for (const input of this.optFieldsInputs ?? [])
-            if (optFields?.getAttribute(input.label) !== input.value)
+        for (const input of this.optFieldsInputs ?? []) {
+            if (optFields?.getAttribute(input.label) !== input.value) {
                 optFieldAttrs[input.label] = input.value;
+            }
+        }
         if (!optFields) {
             const node = createElement$1(this.element.ownerDocument, 'OptFields', optFieldAttrs);
             this.dispatchEvent(newEditEventV2({
@@ -40437,24 +40536,27 @@ class ReportControlElementEditor extends ScopedElementsMixin(i$3) {
         }
         this.onOptFieldsInputChange();
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     onTrgOpsInputChange() {
-        if (!this.element)
+        if (!this.element) {
             return;
+        }
         const trgOps = this.element.querySelector(':scope > TrgOps');
         const trgOpsAttrs = {};
-        for (const input of this.trgOpsInputs)
+        for (const input of this.trgOpsInputs) {
             trgOpsAttrs[input.label] = input.value;
+        }
         this.trgOpsDiff = Array.from(this.trgOpsInputs).some(input => trgOps?.getAttribute(input.label) !== input.value);
     }
     saveTrgOpsChanges() {
-        if (!this.element)
+        if (!this.element) {
             return;
+        }
         const trgOps = this.element.querySelector(':scope > TrgOps');
         const trgOpsAttrs = {};
         for (const input of this.trgOpsInputs ?? []) {
-            if (trgOps?.getAttribute(input.label) !== input.value)
+            if (trgOps?.getAttribute(input.label) !== input.value) {
                 trgOpsAttrs[input.label] = input.value;
+            }
         }
         if (!trgOps) {
             const node = createElement$1(this.element.ownerDocument, 'TrgOps', trgOpsAttrs);
@@ -40473,8 +40575,9 @@ class ReportControlElementEditor extends ScopedElementsMixin(i$3) {
         this.onTrgOpsInputChange();
     }
     onReportControlInputChange() {
-        if (!this.element)
+        if (!this.element) {
             return;
+        }
         const reportControl = this.element;
         const rptEnabled = reportControl.querySelector(':scope > RptEnabled');
         const someInvalidAttrs = Array.from(this.reportControlInputs).some(input => !input.checkValidity());
@@ -40484,8 +40587,9 @@ class ReportControlElementEditor extends ScopedElementsMixin(i$3) {
             return;
         }
         const reportControlAttrs = {};
-        for (const input of this.reportControlInputs)
+        for (const input of this.reportControlInputs) {
             reportControlAttrs[input.label] = input.value;
+        }
         const someAttrDiff = Array.from(this.reportControlInputs).some(input => reportControl?.getAttribute(input.label) !== input.value);
         const rptEnabledDiff = (rptEnabled?.getAttribute('max') ?? null) !== this.rptEnabledInput.value;
         this.reportControlDiff = someAttrDiff || rptEnabledDiff;
@@ -40493,23 +40597,27 @@ class ReportControlElementEditor extends ScopedElementsMixin(i$3) {
     saveReportControlChanges() {
         const reportControl = this.element;
         const reportControlAttrs = {};
-        for (const input of this.reportControlInputs ?? [])
-            if (reportControl.getAttribute(input.label) !== input.value)
+        for (const input of this.reportControlInputs ?? []) {
+            if (reportControl.getAttribute(input.label) !== input.value) {
                 reportControlAttrs[input.label] = input.value;
+            }
+        }
         const reportControlActions = updateReportControl({
             element: reportControl,
             attributes: reportControlAttrs,
         });
         const max = this.rptEnabledInput.value;
         const rptEnabledAction = updateMaxClients(reportControl, max);
-        if (!rptEnabledAction)
+        if (!rptEnabledAction) {
             this.dispatchEvent(newEditEventV2(reportControlActions, {
                 title: `Update ReportControl ${this.element}`,
             }));
-        else
+        }
+        else {
             this.dispatchEvent(newEditEventV2([...reportControlActions, rptEnabledAction], {
                 title: `Update ReportControl ${this.element}`,
             }));
+        }
         this.resetInputs();
         this.onReportControlInputChange();
     }
@@ -40691,7 +40799,7 @@ class ReportControlElementEditor extends ScopedElementsMixin(i$3) {
     </div>`;
     }
     render() {
-        if (this.element)
+        if (this.element) {
             return b `<h2 style="display: flex;">
           <div style="flex:auto">
             <div>ReportControl</div>
@@ -40701,6 +40809,7 @@ class ReportControlElementEditor extends ScopedElementsMixin(i$3) {
         <div class="parentcontent">
           ${this.renderReportControlContent()}${this.renderChildElements()}
         </div>`;
+        }
         return b `<div class="parentcontent">
       <h2>No ReportControl loaded</h2>
     </div>`;
@@ -40805,7 +40914,7 @@ __decorate([
 ], ReportControlElementEditor.prototype, "rptEnabledInput", void 0);
 
 class ReportControlEditor extends BaseElementEditor {
-    /** Resets selected Report and its DataSet, if not existing in new doc
+    /* Resets selected Report and its DataSet, if not existing in new doc
     update(props: Map<string | number | symbol, unknown>): void {
       super.update(props);
   
@@ -40830,7 +40939,7 @@ class ReportControlEditor extends BaseElementEditor {
       }
     } */
     renderElementEditorContainer() {
-        if (this.selectCtrlBlock !== undefined)
+        if (this.selectCtrlBlock !== undefined) {
             return b `<div class="elementeditorcontainer">
         ${this.renderDataSetElementContainer()}
         <report-control-element-editor
@@ -40839,6 +40948,7 @@ class ReportControlEditor extends BaseElementEditor {
           .docVersion=${this.docVersion}
         ></report-control-element-editor>
       </div>`;
+        }
         return b ``;
     }
     renderSelectionList() {
@@ -40854,10 +40964,11 @@ class ReportControlEditor extends BaseElementEditor {
                         icon: 'playlist_add',
                         callback: () => {
                             const insertGseControl = createReportControl(ied);
-                            if (insertGseControl)
+                            if (insertGseControl) {
                                 this.dispatchEvent(newEditEventV2(insertGseControl, {
                                     title: 'Create New ReportControl',
                                 }));
+                            }
                         },
                     },
                 ],
@@ -40866,12 +40977,15 @@ class ReportControlEditor extends BaseElementEditor {
                 headline: `${rpControl.getAttribute('name')}`,
                 supportingText: `${pathIdentity(rpControl)}`,
                 primaryAction: () => {
-                    if (this.selectCtrlBlock === rpControl)
+                    if (this.selectCtrlBlock === rpControl) {
                         return;
-                    if (this.rpControlElementEditor)
+                    }
+                    if (this.rpControlElementEditor) {
                         this.rpControlElementEditor.resetInputs();
-                    if (this.dataSetElementEditor)
+                    }
+                    if (this.dataSetElementEditor) {
                         this.dataSetElementEditor.resetInputs();
+                    }
                     this.selectCtrlBlock = rpControl;
                     this.selectedDataSet =
                         rpControl.parentElement?.querySelector(`:scope > DataSet[name="${rpControl.getAttribute('datSet')}"]`) ?? null;
@@ -40910,8 +41024,9 @@ class ReportControlEditor extends BaseElementEditor {
     >`;
     }
     render() {
-        if (!this.doc)
+        if (!this.doc) {
             return b `No SCL loaded`;
+        }
         return b `${this.renderToggleButton()}
       <div class="section">
         ${this.renderSelectionList()}${this.renderElementEditorContainer()}
@@ -40993,14 +41108,17 @@ function pElement(smv, type) {
 /** @returns Whether the `sMV`s element attributes or instType has changed */
 function checkSMVDiff(sMV, attributes = { pTypes: {} }) {
     const pTypeDiff = Object.entries(attributes.pTypes).some(([key, value]) => pElementContent$1(sMV, key) !== value);
-    if (pTypeDiff)
+    if (pTypeDiff) {
         return true;
-    if (attributes.instType === undefined)
+    }
+    if (attributes.instType === undefined) {
         return false;
+    }
     const instTypeDiff = Object.keys(attributes.pTypes).some(key => {
         const pType = pElement(sMV, key);
-        if (!pType)
+        if (!pType) {
             return false;
+        }
         const hasInstType = pType.hasAttribute('xsi:type');
         return hasInstType !== attributes.instType;
     });
@@ -41050,14 +41168,20 @@ class SampledValueControlElementEditor extends ScopedElementsMixin(i$3) {
         // resets save button
         this.sMVdiff = false;
         this.sampledValueControlDiff = false;
-        if (type === 'SampledValueControl')
-            for (const input of this.sampledValueControlInputs)
-                if (input instanceof OscdSclTextField)
+        if (type === 'SampledValueControl') {
+            for (const input of this.sampledValueControlInputs) {
+                if (input instanceof OscdSclTextField) {
                     input.reset();
-        if (type === 'SMV')
-            for (const input of this.sMVInputs)
-                if (input instanceof OscdSclTextField)
+                }
+            }
+        }
+        if (type === 'SMV') {
+            for (const input of this.sMVInputs) {
+                if (input instanceof OscdSclTextField) {
                     input.reset();
+                }
+            }
+        }
     }
     onSampledValueControlInputChange() {
         if (Array.from(this.sampledValueControlInputs).some(input => !input.reportValidity())) {
@@ -41065,17 +41189,21 @@ class SampledValueControlElementEditor extends ScopedElementsMixin(i$3) {
             return;
         }
         const sampledValueControlAttrs = {};
-        for (const input of this.sampledValueControlInputs)
+        for (const input of this.sampledValueControlInputs) {
             sampledValueControlAttrs[input.label] = input.value;
+        }
         this.sampledValueControlDiff = Array.from(this.sampledValueControlInputs).some(input => this.element?.getAttribute(input.label) !== input.value);
     }
     saveSampledValueControlChanges() {
-        if (!this.element)
+        if (!this.element) {
             return;
+        }
         const sampledValueControlAttrs = {};
-        for (const input of this.sampledValueControlInputs)
-            if (this.element?.getAttribute(input.label) !== input.value)
+        for (const input of this.sampledValueControlInputs) {
+            if (this.element?.getAttribute(input.label) !== input.value) {
                 sampledValueControlAttrs[input.label] = input.value;
+            }
+        }
         this.dispatchEvent(newEditEventV2(updateSampledValueControl({
             element: this.element,
             attributes: sampledValueControlAttrs,
@@ -41084,38 +41212,47 @@ class SampledValueControlElementEditor extends ScopedElementsMixin(i$3) {
         this.onSampledValueControlInputChange();
     }
     onSMVInputChange() {
-        if (!this.sMV)
+        if (!this.sMV) {
             return;
+        }
         if (Array.from(this.sMVInputs).some(input => !input.reportValidity())) {
             this.sMVdiff = false;
             return;
         }
         const pTypes = {};
-        for (const input of this.sMVInputs)
+        for (const input of this.sMVInputs) {
             pTypes[input.label] = input.value;
+        }
         this.sMVdiff = checkSMVDiff(this.sMV, {
             pTypes,
             instType: this.instType?.checked,
         });
     }
     saveSMVChanges() {
-        if (!this.sMV)
+        if (!this.sMV) {
             return;
+        }
         const options = {};
         for (const input of this.sMVInputs) {
-            if (input.label === 'MAC-Address' && input.value)
+            if (input.label === 'MAC-Address' && input.value) {
                 options.mac = input.value;
-            if (input.label === 'APPID' && input.value)
+            }
+            if (input.label === 'APPID' && input.value) {
                 options.appId = input.value;
-            if (input.label === 'VLAN-ID' && input.value)
+            }
+            if (input.label === 'VLAN-ID' && input.value) {
                 options.vlanId = input.value;
-            if (input.label === 'VLAN-PRIORITY' && input.value)
+            }
+            if (input.label === 'VLAN-PRIORITY' && input.value) {
                 options.vlanPriority = input.value;
+            }
         }
-        if (this.instType?.checked === true)
+        if (this.instType?.checked === true) {
             options.instType = true;
-        else if (this.instType?.checked === false)
+        }
+        else if (this.instType?.checked === false) {
             options.instType = false;
+        }
         this.dispatchEvent(newEditEventV2(changeSMVContent(this.sMV, options), {
             title: `Update SampledValueControl SMV ${identity(this.element)}`,
         }));
@@ -41123,22 +41260,27 @@ class SampledValueControlElementEditor extends ScopedElementsMixin(i$3) {
         this.onSMVInputChange();
     }
     onSmvOptsInputChange() {
-        if (!this.element)
+        if (!this.element) {
             return;
+        }
         const smvOpts = this.element.querySelector(':scope > SmvOpts');
         const smvOptsAttrs = {};
-        for (const input of this.smvOptsInputs)
+        for (const input of this.smvOptsInputs) {
             smvOptsAttrs[input.label] = input.value;
+        }
         this.smvOptsDiff = Array.from(this.smvOptsInputs).some(input => smvOpts?.getAttribute(input.label) !== input.value);
     }
     saveSmvOptsChanges() {
         const smvOpts = this.element.querySelector(':scope > SmvOpts');
-        if (!smvOpts)
+        if (!smvOpts) {
             return;
+        }
         const smvOptsAttrs = {};
-        for (const input of this.smvOptsInputs)
-            if (smvOpts.getAttribute(input.label) !== input.value)
+        for (const input of this.smvOptsInputs) {
+            if (smvOpts.getAttribute(input.label) !== input.value) {
                 smvOptsAttrs[input.label] = input.value;
+            }
+        }
         const updateEdit = { element: smvOpts, attributes: smvOptsAttrs };
         this.dispatchEvent(newEditEventV2(updateEdit, {
             title: `Update SampledValueControl Options ${identity(this.element)}`,
@@ -41147,16 +41289,18 @@ class SampledValueControlElementEditor extends ScopedElementsMixin(i$3) {
     }
     renderSmvContent() {
         const { sMV } = this;
-        if (!sMV)
+        if (!sMV) {
             return b ` <h3>
         <div>Communication Settings (SMV)</div>
         <div class="headersubtitle">No connection available</div>
       </h3>`;
+        }
         const hasInstType = Array.from(sMV.querySelectorAll(':scope > Address > P')).some(pType => pType.getAttribute('xsi:type'));
         const attributes = {};
         ['MAC-Address', 'APPID', 'VLAN-ID', 'VLAN-PRIORITY'].forEach(key => {
-            if (!attributes[key])
+            if (!attributes[key]) {
                 attributes[key] = pElementContent(sMV, key);
+            }
         });
         return b ` <div class="content smv">
         <h3>Communication Settings (SMV)</h3>
@@ -41336,10 +41480,11 @@ class SampledValueControlElementEditor extends ScopedElementsMixin(i$3) {
     </div>`;
     }
     render() {
-        if (!this.element)
+        if (!this.element) {
             return b `<h2 style="display: flex;">
         No SampledValueControl selected
       </h2>`;
+        }
         return b `<h2 style="display: flex;">
         <div style="flex:auto">
           <div>SampledValueControl</div>
@@ -41461,14 +41606,15 @@ __decorate([
 
 function smvControlPath(smvControl) {
     const id = identity(smvControl);
-    if (Number.isNaN(id))
+    if (Number.isNaN(id)) {
         return 'UNDEFINED';
+    }
     const paths = id.split('>');
     paths.pop();
     return paths.join('>');
 }
 class SampledValueControlEditor extends BaseElementEditor {
-    /** Resets selected SMV and its DataSet, if not existing in new doc
+    /* Resets selected SMV and its DataSet, if not existing in new doc
     update(props: Map<string | number | symbol, unknown>): void {
       super.update(props);
   
@@ -41493,7 +41639,7 @@ class SampledValueControlEditor extends BaseElementEditor {
       }
     } */
     renderElementEditorContainer() {
-        if (this.selectCtrlBlock !== undefined)
+        if (this.selectCtrlBlock !== undefined) {
             return b `<div class="elementeditorcontainer">
         ${this.renderDataSetElementContainer()}
         <sampled-value-control-element-editor
@@ -41502,6 +41648,7 @@ class SampledValueControlEditor extends BaseElementEditor {
           .docVersion=${this.docVersion}
         ></sampled-value-control-element-editor>
       </div>`;
+        }
         return b ``;
     }
     renderSelectionList() {
@@ -41517,12 +41664,15 @@ class SampledValueControlEditor extends BaseElementEditor {
                 headline: `${smvControl.getAttribute('name')}`,
                 supportingText: `${smvControlPath(smvControl)}`,
                 primaryAction: () => {
-                    if (this.selectCtrlBlock === smvControl)
+                    if (this.selectCtrlBlock === smvControl) {
                         return;
-                    if (this.elementContainer)
+                    }
+                    if (this.elementContainer) {
                         this.elementContainer.resetInputs();
-                    if (this.dataSetElementEditor)
+                    }
+                    if (this.dataSetElementEditor) {
                         this.dataSetElementEditor.resetInputs();
+                    }
                     this.selectCtrlBlock = smvControl;
                     this.selectedDataSet =
                         smvControl.parentElement?.querySelector(`DataSet[name="${smvControl.getAttribute('datSet')}"]`) ?? null;
@@ -41561,8 +41711,9 @@ class SampledValueControlEditor extends BaseElementEditor {
     >`;
     }
     render() {
-        if (!this.doc)
+        if (!this.doc) {
             return b `No SCL loaded`;
+        }
         return b `${this.renderToggleButton()}
       <div class="section">
         ${this.renderSelectionList()}${this.renderElementEditorContainer()}
