@@ -1,0 +1,3309 @@
+{
+  "schemaVersion": "1.0.0",
+  "readme": "",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "src/foundation.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "updateElementReference",
+          "return": {
+            "type": {
+              "text": "Element | null"
+            }
+          },
+          "parameters": [
+            {
+              "name": "newDoc",
+              "type": {
+                "text": "XMLDocument"
+              }
+            },
+            {
+              "name": "oldElement",
+              "type": {
+                "text": "Element"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "function",
+          "name": "pathIdentity",
+          "return": {
+            "type": {
+              "text": "string"
+            }
+          },
+          "parameters": [
+            {
+              "name": "element",
+              "type": {
+                "text": "Element"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "variable",
+          "name": "styles",
+          "default": "css` .section { display: flex; height: calc(100vh - 184px); } .selectionlist { flex: 35%; margin: 4px 4px 4px 8px; background-color: var(--mdc-theme-surface, white); overflow-y: scroll; } .elementeditorcontainer { flex: 65%; margin: 4px 8px 4px 4px; background-color: var(--mdc-theme-surface); overflow-y: scroll; display: flex; z-index: 0; } .listitem.header { font-weight: 500; } mwc-list-item.hidden[noninteractive] + li[divider] { display: none; } mwc-list-item.hidden[slot] + li[divider] { display: none; } .change.scl.element { display: none; } @media (max-width: 950px) { .elementeditorcontainer { display: block; } } @media (max-width: 599px) { .section { height: 100%; } .selectionlist { position: absolute; width: calc(100% - 32px); height: auto; top: 110px; left: 8px; z-index: 1; box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2); } .elementeditorcontainer { display: block; } data-set-element-editor { width: calc(100% - 16px); } .selectionlist.hidden { display: none; } .change.scl.element { display: flex; margin: 4px 8px 8px; } } `"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "updateElementReference",
+          "declaration": {
+            "name": "updateElementReference",
+            "module": "src/foundation.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "pathIdentity",
+          "declaration": {
+            "name": "pathIdentity",
+            "module": "src/foundation.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "styles",
+          "declaration": {
+            "name": "styles",
+            "module": "src/foundation.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/oscd-editor-publisher.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "An editor [[`plugin`]] to configure `Report`, `GOOSE`, `SampledValue` control blocks and its `DataSet`",
+          "name": "PublisherPlugin",
+          "members": [
+            {
+              "kind": "field",
+              "name": "scopedElements",
+              "type": {
+                "text": "object"
+              },
+              "static": true,
+              "default": "{ 'oscd-radio': OscdRadio, 'report-control-editor': ReportControlEditor, 'gse-control-editor': GseControlEditor, 'sampled-value-control-editor': SampledValueControlEditor, 'data-set-editor': DataSetEditor, }"
+            },
+            {
+              "kind": "field",
+              "name": "doc",
+              "type": {
+                "text": "XMLDocument"
+              },
+              "description": "The document being edited as provided to plugins by [[`OpenSCD`]]."
+            },
+            {
+              "kind": "field",
+              "name": "docVersion",
+              "type": {
+                "text": "unknown | undefined"
+              },
+              "description": "SCL change indicator"
+            },
+            {
+              "kind": "field",
+              "name": "publisherType",
+              "type": {
+                "text": "'Report' | 'GOOSE' | 'SampledValue' | 'DataSet'"
+              },
+              "privacy": "private",
+              "default": "'GOOSE'"
+            }
+          ],
+          "mixins": [
+            {
+              "name": "ScopedElementsMixin",
+              "package": "@open-wc/scoped-elements/lit-element.js"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "default",
+          "declaration": {
+            "name": "PublisherPlugin",
+            "module": "src/oscd-editor-publisher.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/editors/base-element-editor.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "BaseElementEditor",
+          "members": [
+            {
+              "kind": "field",
+              "name": "doc",
+              "type": {
+                "text": "XMLDocument"
+              },
+              "description": "The document being edited as provided to plugins by [[`OpenSCD`]]."
+            },
+            {
+              "kind": "field",
+              "name": "docVersion",
+              "type": {
+                "text": "unknown | undefined"
+              },
+              "description": "SCL change indicator"
+            },
+            {
+              "kind": "field",
+              "name": "selectCtrlBlock",
+              "type": {
+                "text": "Element | undefined"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "selectedDataSet",
+              "type": {
+                "text": "Element | null | undefined"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "selectDataSetDialog",
+              "type": {
+                "text": "OscdDialog"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "newDataSet",
+              "type": {
+                "text": "OscdIconButton"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "changeDataSet",
+              "type": {
+                "text": "OscdIconButton"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "selectDataSet",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "text": "Element"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "addNewDataSet",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "control",
+                  "type": {
+                    "text": "Element"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "showSelectDataSetDialog",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderSelectDataSetDialog",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderDataSetElementContainer",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            }
+          ],
+          "mixins": [
+            {
+              "name": "ScopedElementsMixin",
+              "package": "@open-wc/scoped-elements/lit-element.js"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "BaseElementEditor",
+          "declaration": {
+            "name": "BaseElementEditor",
+            "module": "src/editors/base-element-editor.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/foundation/icons.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "gooseIcon",
+          "default": "svg`<svg style=\"width:24px;height:24px\" viewBox=\"0 0 24 24\">${pathsSVG.gooseIcon}</svg>`"
+        },
+        {
+          "kind": "variable",
+          "name": "reportIcon",
+          "default": "svg`<svg style=\"width:24px;height:24px\" viewBox=\"0 0 24 24\">${pathsSVG.reportIcon}</svg>`"
+        },
+        {
+          "kind": "variable",
+          "name": "smvIcon",
+          "default": "svg`<svg style=\"width:24px;height:24px\" viewBox=\"0 0 24 24\">${pathsSVG.smvIcon}</svg>`"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "gooseIcon",
+          "declaration": {
+            "name": "gooseIcon",
+            "module": "src/foundation/icons.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "reportIcon",
+          "declaration": {
+            "name": "reportIcon",
+            "module": "src/foundation/icons.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "smvIcon",
+          "declaration": {
+            "name": "smvIcon",
+            "module": "src/foundation/icons.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/foundation/pattern.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "typePattern",
+          "type": {
+            "text": "Partial<Record<string, string>>"
+          },
+          "default": "{ IP: typeBase.IP, 'IP-SUBNET': typeBase.IP, 'IP-GATEWAY': typeBase.IP, 'OSI-TSEL': typeBase.OSI, 'OSI-SSEL': typeBase.OSI, 'OSI-PSEL': typeBase.OSI, 'OSI-AP-Title': typeBase.OSIAPi, 'OSI-AP-Invoke': typeBase.OSId, 'OSI-AE-Qualifier': typeBase.OSId, 'OSI-AE-Invoke': typeBase.OSId, 'MAC-Address': typeBase.MAC, APPID: typeBase.APPID, 'VLAN-ID': typeBase.VLANid, 'VLAN-PRIORITY': typeBase.VLANp, 'OSI-NSAP': typeBase.OSI, 'SNTP-Port': typeBase.port, 'MMS-Port': typeBase.port, DNSName: '[^ ]*', 'UDP-Port': typeBase.port, 'TCP-Port': typeBase.port, 'C37-118-IP-Port': '102[5-9]|10[3-9][0-9]|1[1-9][0-9][0-9]|[2-9][0-9]{3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5]', IPv6: typeBase.IPv6, 'IPv6-SUBNET': typeBase.IPv6sub, 'IPv6-GATEWAY': typeBase.IPv6, IPv6FlowLabel: '[0-9a-fA-F]{1,5}', IPv6ClassOfTraffic: '[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]', 'IPv6-IGMPv3Src': typeBase.IPv6, 'IP-IGMPv3Sr': typeBase.IP, 'IP-ClassOfTraffic': typeBase.OSI, }",
+          "description": "Patterns from IEC 61850-6 for all `P` elements"
+        },
+        {
+          "kind": "variable",
+          "name": "typeNullable",
+          "type": {
+            "text": "Partial<Record<string, boolean>>"
+          },
+          "default": "{ IP: false, 'IP-SUBNET': false, 'IP-GATEWAY': true, 'OSI-TSEL': true, 'OSI-SSEL': true, 'OSI-PSEL': true, 'OSI-AP-Title': true, 'OSI-AP-Invoke': true, 'OSI-AE-Qualifier': true, 'OSI-AE-Invoke': true, 'OSI-NSAP': true, 'MAC-Address': false, APPID: false, 'VLAN-ID': true, 'VLAN-PRIORITY': true, 'SNTP-Port': true, 'MMS-Port': true, DNSName: true, 'UDP-Port': true, 'TCP-Port': true, 'C37-118-IP-Port': true, IPv6: true, 'IPv6-SUBNET': true, 'IPv6-GATEWAY': true, IPv6FlowLabel: true, IPv6ClassOfTraffic: true, 'IPv6-IGMPv3Src': true, 'IP-IGMPv3Sr': true, 'IP-ClassOfTraffic': true, }",
+          "description": "Whether `P` element is required within `Address`"
+        },
+        {
+          "kind": "variable",
+          "name": "name",
+          "default": "`${nameStartChar}(${nameChar})*`"
+        },
+        {
+          "kind": "variable",
+          "name": "nmToken",
+          "default": "`(${nameChar})+`"
+        },
+        {
+          "kind": "variable",
+          "name": "patterns",
+          "type": {
+            "text": "object"
+          },
+          "default": "{ string: '([\\u0009-\\u000A]|[\\u000D]|[\\u0020-\\u007E]|[\\u0085]|[\\u00A0-\\uD7FF]' + '|[\\uE000-\\uFFFD])*', normalizedString: '([\\u0020-\\u007E]|[\\u0085]|[\\u00A0-\\uD7FF]|[\\uE000-\\uFFFD])*', name, nmToken, names: `${name}( ${name})*`, nmTokens: `${nmToken}( ${nmToken})*`, decimal: '[+-]?[0-9]+(([.][0-9]*)?|([.][0-9]+))', unsigned: '[+]?[0-9]+(([.][0-9]*)?|([.][0-9]+))', alphanumericFirstUpperCase: '[A-Z][0-9,A-Z,a-z]*', asciName: '[A-Za-z][0-9,A-Z,a-z_]*', lnClass: '[A-Z]{4,4}', tRestrName1stL: '[a-z][0-9A-Za-z]*', abstractDataAttributeName: '((T)|(Test)|(Check)|(SIUnit)|(Oper)|(SBO)|(SBOw)|(Cancel)|[a-z][0-9A-Za-z]*)', cdc: '(SPS)|(DPS)|(INS)|(ENS)|(ACT)|(ACD)|(SEC)|(BCR)|(HST)|(VSS)|(MV)|(CMV)|(SAV)|' + '(WYE)|(DEL)|(SEQ)|(HMV)|(HWYE)|(HDEL)|(SPC)|(DPC)|(INC)|(ENC)|(BSC)|(ISC)|(APC)|(BAC)|' + '(SPG)|(ING)|(ENG)|(ORG)|(TSG)|(CUG)|(VSG)|(ASG)|(CURVE)|(CSG)|(DPL)|(LPL)|(CSD)|(CST)|' + '(BTS)|(UTS)|(LTS)|(GTS)|(MTS)|(NTS)|(STS)|(CTS)|(OTS)|(VSD)', }"
+        },
+        {
+          "kind": "variable",
+          "name": "maxLength",
+          "type": {
+            "text": "object"
+          },
+          "default": "{ cbName: 32, abstracDaName: 60, }"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "typePattern",
+          "declaration": {
+            "name": "typePattern",
+            "module": "src/foundation/pattern.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "typeNullable",
+          "declaration": {
+            "name": "typeNullable",
+            "module": "src/foundation/pattern.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "patterns",
+          "declaration": {
+            "name": "patterns",
+            "module": "src/foundation/pattern.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "maxLength",
+          "declaration": {
+            "name": "maxLength",
+            "module": "src/foundation/pattern.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/editors/dataset/data-set-editor.spec.ts",
+      "declarations": [],
+      "exports": [
+        {
+          "kind": "custom-element-definition",
+          "name": "data-set-editor",
+          "declaration": {
+            "name": "DataSetEditor",
+            "module": "/src/editors/dataset/data-set-editor.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/editors/dataset/data-set-editor.testfiles.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "dataSetDoc",
+          "default": "` <SCL> <IED name=\"IED\" > <Services> <ConfDataSet max=\"10\" maxAttributes=\"10\" /> </Services> <AccessPoint name=\"AP1\"> <Server> <LDevice inst=\"ldInst1\"> <LN0 lnClass=\"LLN0\" inst=\"\" lnType=\"LLN0\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsA\" daName=\"cVal.mag.f\" fc=\"MX\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsA\" daName=\"q\" fc=\"MX\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsA\" daName=\"t\" fc=\"MX\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsB\" fc=\"MX\" /> </DataSet> </LN0> <LN prefix=\"prefix\" lnClass=\"MMXU\" inst=\"1\" lnType=\"MMXU\" /> </LDevice> <LDevice inst=\"ldInst2\"> <LN0 lnClass=\"LLN0\" inst=\"\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsA\" daName=\"cVal.mag.f\" fc=\"MX\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsA\" daName=\"q\" fc=\"MX\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsA\" daName=\"t\" fc=\"MX\" /> </DataSet> </LN0> </LDevice> <LDevice inst=\"ldInst3\"> <LN0 lnClass=\"LLN0\" inst=\"\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsA\" daName=\"cVal.mag.f\" fc=\"MX\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsA\" daName=\"q\" fc=\"MX\" /> </DataSet> </LN0> </LDevice> <LDevice inst=\"ldInst4\"> <LN0 lnClass=\"LLN0\" inst=\"\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> </DataSet> </LN0> </LDevice> <LDevice inst=\"ldInst5\"> <LN0 lnClass=\"LLN0\" inst=\"\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"stVal\" fc=\"ST\" /> </DataSet> </LN0> </LDevice> <LDevice inst=\"ldInst6\"> <LN0 lnClass=\"LLN0\" inst=\"\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> </DataSet> </LN0> </LDevice> <LDevice inst=\"ldInst7\"> <LN0 lnClass=\"LLN0\" inst=\"\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> </DataSet> </LN0> </LDevice> <LDevice inst=\"ldInst8\"> <LN0 lnClass=\"LLN0\" inst=\"\" lnType=\"LLN0\"> <DataSet name=\"datSet\"> </DataSet> </LN0> </LDevice> </Server> </AccessPoint> </IED> <IED name=\"IED2\" > <Services> <ConfDataSet max=\"10\" maxAttributes=\"10\" /> </Services> <AccessPoint name=\"AP1\"> <Server> <LDevice inst=\"ldInst1\"> <LN0 lnClass=\"LLN0\" inst=\"\" lnType=\"LLN0\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsA\" daName=\"cVal.mag.f\" fc=\"MX\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsA\" daName=\"q\" fc=\"MX\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsA\" daName=\"t\" fc=\"MX\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsB\" fc=\"MX\" /> </DataSet> </LN0> <LN prefix=\"prefix\" lnClass=\"MMXU\" inst=\"1\" lnType=\"MMXU\" /> </LDevice> <LDevice inst=\"ldInst2\"> <LN0 lnClass=\"LLN0\" inst=\"\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsA\" daName=\"cVal.mag.f\" fc=\"MX\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsA\" daName=\"q\" fc=\"MX\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsA\" daName=\"t\" fc=\"MX\" /> </DataSet> </LN0> </LDevice> <LDevice inst=\"ldInst3\"> <LN0 lnClass=\"LLN0\" inst=\"\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsA\" daName=\"cVal.mag.f\" fc=\"MX\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsA\" daName=\"q\" fc=\"MX\" /> </DataSet> </LN0> </LDevice> </Server> </AccessPoint> </IED> <DataTypeTemplates> <LNodeType lnClass=\"LLN0\" id=\"LLN0\"> <DO name=\"Beh\" type=\"ENS\"/> </LNodeType> <LNodeType lnClass=\"MMXU\" id=\"MMXU\"> <DO name=\"PhV\" type=\"WYE\"/> </LNodeType> <DOType cdc=\"ENS\" id=\"ENS\"> <DA name=\"stVal\" bType=\"Enum\" fc=\"ST\" /> <DA name=\"q\" bType=\"Quality\" fc=\"ST\" /> <DA name=\"t\" bType=\"Timestamp\" fc=\"ST\" /> <DA name=\"dc\" bType=\"VisString255\" fc=\"DC\" /> </DOType> <DOType cdc=\"WYE\" id=\"WYE\"> <SDO name=\"phsA\" type=\"CMV\" /> <SDO name=\"phsB\" type=\"CMV\" /> <SDO name=\"phsC\" type=\"CMV\" /> <SDO name=\"phRes\" type=\"CustomWYE\" /> </DOType> <DOType cdc=\"WYE\" id=\"CustomWYE\" > <SDO name=\"phsA\" type=\"CMV\" /> </DOType> <DOType cdc=\"CMV\" id=\"CMV\"> <DA name=\"cVal\" bType=\"Struct\" type=\"Vector\" fc=\"MX\"/> <DA name=\"q\" bType=\"Quality\" fc=\"MX\" /> <DA name=\"t\" bType=\"Timestamp\" fc=\"MX\" /> <DA name=\"d\" bType=\"VisibleString255\" fc=\"DC\" /> </DOType> <DAType id=\"Vector\" > <BDA name=\"mag\" bType=\"Struct\" type=\"AnalogueValue\" /> <BDA name=\"ang\" bType=\"Struct\" type=\"AnalogueValue\" /> </DAType> <DAType id=\"AnalogueValue\" > <BDA name=\"f\" bType=\"FLOAT32\" /> </DAType> </DataTypeTemplates> </SCL> `"
+        },
+        {
+          "kind": "variable",
+          "name": "otherDataSetDoc",
+          "default": "` <SCL> <IED name=\"IED\" > <Services> <ConfDataSet max=\"10\" maxAttributes=\"10\" /> </Services> <AccessPoint name=\"AP1\"> <Server> <LDevice inst=\"ldInst1\"> <LN0 lnClass=\"LLN0\" inst=\"\" lnType=\"LLN0\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsA\" daName=\"cVal.mag.f\" fc=\"MX\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsA\" daName=\"q\" fc=\"MX\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsA\" daName=\"t\" fc=\"MX\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsB\" fc=\"MX\" /> </DataSet> </LN0> <LN prefix=\"prefix\" lnClass=\"MMXU\" inst=\"1\" lnType=\"MMXU\" /> </LDevice> </Server> </AccessPoint> </IED> <DataTypeTemplates> <LNodeType lnClass=\"LLN0\" id=\"LLN0\"> <DO name=\"Beh\" type=\"ENS\"/> </LNodeType> <LNodeType lnClass=\"MMXU\" id=\"MMXU\"> <DO name=\"PhV\" type=\"WYE\"/> </LNodeType> <DOType cdc=\"ENS\" id=\"ENS\"> <DA name=\"stVal\" bType=\"Enum\" fc=\"ST\" /> <DA name=\"q\" bType=\"Quality\" fc=\"ST\" /> <DA name=\"t\" bType=\"Timestamp\" fc=\"ST\" /> <DA name=\"dc\" bType=\"VisString255\" fc=\"DC\" /> </DOType> <DOType cdc=\"WYE\" id=\"WYE\"> <SDO name=\"phsA\" type=\"CMV\" /> <SDO name=\"phsB\" type=\"CMV\" /> <SDO name=\"phsC\" type=\"CMV\" /> <SDO name=\"phRes\" type=\"CustomWYE\" /> </DOType> <DOType cdc=\"WYE\" id=\"CustomWYE\" > <SDO name=\"phsA\" type=\"CMV\" /> </DOType> <DOType cdc=\"CMV\" id=\"CMV\"> <DA name=\"cVal\" bType=\"Struct\" type=\"Vector\" fc=\"MX\"/> <DA name=\"q\" bType=\"Quality\" fc=\"MX\" /> <DA name=\"t\" bType=\"Timestamp\" fc=\"MX\" /> <DA name=\"d\" bType=\"VisibleString255\" fc=\"DC\" /> </DOType> <DAType id=\"Vector\" > <BDA name=\"mag\" bType=\"Struct\" type=\"AnalogueValue\" /> <BDA name=\"ang\" bType=\"Struct\" type=\"AnalogueValue\" /> </DAType> <DAType id=\"AnalogueValue\" > <BDA name=\"f\" bType=\"FLOAT32\" /> </DAType> </DataTypeTemplates> </SCL> `"
+        },
+        {
+          "kind": "variable",
+          "name": "dataSetDocWithDescs",
+          "default": "` <SCL xmlns=\"http://www.iec.ch/61850/2003/SCL\" version=\"2007\" revision=\"B\" release=\"4\"> <Header id=\"ReportControl with description\" version=\"1\" revision=\"1\" toolID=\"OpenSCD, tada!\" nameStructure=\"IEDName\"> </Header> <IED name=\"IED\"> <Services> <ConfDataSet max=\"10\" maxAttributes=\"10\" /> </Services> <AccessPoint name=\"AP1\"> <Server> <Authentication></Authentication> <LDevice inst=\"ldInst1\" desc=\"First logical device\"> <LN0 lnClass=\"LLN0\" inst=\"\" lnType=\"LLN0\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst1\" prefix=\"\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst1\" prefix=\"\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst1\" prefix=\"\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> <FCDA ldInst=\"ldInst1\" prefix=\"\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst1\" prefix=\"\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst1\" prefix=\"\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> <FCDA ldInst=\"ldInst1\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsA\" daName=\"cVal.mag.f\" fc=\"MX\" /> <FCDA ldInst=\"ldInst1\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsA\" daName=\"q\" fc=\"MX\" /> <FCDA ldInst=\"ldInst1\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsA\" daName=\"t\" fc=\"MX\" /> <FCDA ldInst=\"ldInst1\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsB\" fc=\"MX\" /> </DataSet> <DOI name=\"Beh\" desc=\"Behaviour\"></DOI> <DOI name=\"Mod\"> <DAI name=\"d\"> <Val>Mode</Val> </DAI> </DOI> </LN0> <LN prefix=\"prefix\" lnClass=\"MMXU\" inst=\"1\" lnType=\"MMXU\" desc=\"Line\"> <DOI name=\"PhV\" desc=\"Phase voltages\"> <SDI name=\"phsA\"> <SDI name=\"cVal\" desc=\"complex value\"> <SDI name=\"mag\" desc=\"magnitude\"> <DAI name=\"f\" desc=\"fundamental\" /> </SDI> </SDI> <DAI name=\"d\"> <Val>Red Phase</Val> </DAI> </SDI> <SDI name=\"phsB\" desc=\"Phase B\"></SDI> </DOI> </LN> </LDevice> </Server> </AccessPoint> </IED> <DataTypeTemplates> <LNodeType lnClass=\"LLN0\" id=\"LLN0\"> <DO name=\"Beh\" type=\"ENS\"/> </LNodeType> <LNodeType lnClass=\"MMXU\" id=\"MMXU\"> <DO name=\"PhV\" type=\"WYE\"/> </LNodeType> <DOType cdc=\"ENS\" id=\"ENS\"> <DA name=\"stVal\" bType=\"Enum\" fc=\"ST\" /> <DA name=\"q\" bType=\"Quality\" fc=\"ST\" /> <DA name=\"t\" bType=\"Timestamp\" fc=\"ST\" /> <DA name=\"dc\" bType=\"VisString255\" fc=\"DC\" /> </DOType> <DOType cdc=\"WYE\" id=\"WYE\"> <SDO name=\"phsA\" type=\"CMV\" /> <SDO name=\"phsB\" type=\"CMV\" /> <SDO name=\"phsC\" type=\"CMV\" /> <SDO name=\"phRes\" type=\"CustomWYE\" /> </DOType> <DOType cdc=\"WYE\" id=\"CustomWYE\"> <SDO name=\"phsA\" type=\"CMV\" /> </DOType> <DOType cdc=\"CMV\" id=\"CMV\"> <DA name=\"cVal\" bType=\"Struct\" type=\"Vector\" fc=\"MX\"/> <DA name=\"q\" bType=\"Quality\" fc=\"MX\" /> <DA name=\"t\" bType=\"Timestamp\" fc=\"MX\" /> <DA name=\"d\" bType=\"VisString255\" fc=\"DC\" /> </DOType> <DAType id=\"Vector\"> <BDA name=\"mag\" bType=\"Struct\" type=\"AnalogueValue\" /> <BDA name=\"ang\" bType=\"Struct\" type=\"AnalogueValue\" /> </DAType> <DAType id=\"AnalogueValue\"> <BDA name=\"f\" bType=\"FLOAT32\" /> </DAType> </DataTypeTemplates> </SCL> `"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "dataSetDoc",
+          "declaration": {
+            "name": "dataSetDoc",
+            "module": "src/editors/dataset/data-set-editor.testfiles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "otherDataSetDoc",
+          "declaration": {
+            "name": "otherDataSetDoc",
+            "module": "src/editors/dataset/data-set-editor.testfiles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "dataSetDocWithDescs",
+          "declaration": {
+            "name": "dataSetDocWithDescs",
+            "module": "src/editors/dataset/data-set-editor.testfiles.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/editors/dataset/data-set-editor.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "DataSetEditor",
+          "members": [
+            {
+              "kind": "field",
+              "name": "scopedElements",
+              "type": {
+                "text": "object"
+              },
+              "static": true,
+              "default": "{ 'oscd-action-list': OscdActionList, 'data-set-element-editor': DataSetElementEditor, 'oscd-outlined-button': OscdOutlinedButton, }"
+            },
+            {
+              "kind": "field",
+              "name": "doc",
+              "type": {
+                "text": "XMLDocument"
+              },
+              "description": "The document being edited as provided to plugins by [[`OpenSCD`]]."
+            },
+            {
+              "kind": "field",
+              "name": "docVersion",
+              "type": {
+                "text": "unknown | undefined"
+              },
+              "description": "SCL change indicator"
+            },
+            {
+              "kind": "field",
+              "name": "selectedDataSet",
+              "type": {
+                "text": "Element | undefined"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "selectionList",
+              "type": {
+                "text": "OscdActionList"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "selectDataSetButton",
+              "type": {
+                "text": "OscdOutlinedButton"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "dataSetElementEditor",
+              "type": {
+                "text": "DataSetElementEditor"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderElementEditorContainer",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderSelectionList",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderToggleButton",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            }
+          ],
+          "mixins": [
+            {
+              "name": "ScopedElementsMixin",
+              "package": "@open-wc/scoped-elements/lit-element.js"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "data-set-editor",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "DataSetEditor",
+          "declaration": {
+            "name": "DataSetEditor",
+            "module": "src/editors/dataset/data-set-editor.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/editors/dataset/data-set-element-editor.spec.ts",
+      "declarations": [],
+      "exports": [
+        {
+          "kind": "custom-element-definition",
+          "name": "data-set-element-editor",
+          "declaration": {
+            "name": "DataSetElementEditor",
+            "module": "/src/editors/dataset/data-set-element-editor.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/editors/dataset/data-set-element-editor.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "DataSetElementEditor",
+          "members": [
+            {
+              "kind": "field",
+              "name": "scopedElements",
+              "type": {
+                "text": "object"
+              },
+              "static": true,
+              "default": "{ 'oscd-action-list': OscdActionList, 'oscd-text-button': OscdTextButton, 'oscd-dialog': OscdDialog, 'oscd-icon': OscdIcon, 'oscd-tree-grid': OscdTreeGrid, 'oscd-scl-text-field': OscdSclTextField, }"
+            },
+            {
+              "kind": "field",
+              "name": "doc",
+              "type": {
+                "text": "XMLDocument"
+              },
+              "description": "The document being edited as provided to plugins by [[`OpenSCD`]]."
+            },
+            {
+              "kind": "field",
+              "name": "element",
+              "type": {
+                "text": "Element | null"
+              },
+              "default": "null",
+              "description": "The element being edited"
+            },
+            {
+              "kind": "field",
+              "name": "docVersion",
+              "type": {
+                "text": "unknown | undefined"
+              },
+              "description": "SCL change indicator"
+            },
+            {
+              "kind": "field",
+              "name": "name",
+              "type": {
+                "text": "string | null"
+              },
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "desc",
+              "type": {
+                "text": "string | null"
+              },
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "fcdaCount",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "someDiffOnInputs",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "inputs",
+              "type": {
+                "text": "OscdSclTextField[]"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "saveButton",
+              "type": {
+                "text": "OscdTextButton"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "fcdaList",
+              "type": {
+                "text": "OscdActionList"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "daPickerButton",
+              "type": {
+                "text": "OscdTextButton"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "daPickerDialog",
+              "type": {
+                "text": "OscdDialog"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "daPicker",
+              "type": {
+                "text": "OscdTreeGrid"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "daPickerSaveButton",
+              "type": {
+                "text": "OscdTextButton"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "doPickerButton",
+              "type": {
+                "text": "OscdTextButton"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "doPickerDialog",
+              "type": {
+                "text": "OscdDialog"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "doPicker",
+              "type": {
+                "text": "OscdTreeGrid"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "doPickerSaveButton",
+              "type": {
+                "text": "OscdTextButton"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "resetInputs",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "onInputChange",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "saveChanges",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "saveDataObjects",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "saveDataAttributes",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "onMoveFCDAUp",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "fcda",
+                  "type": {
+                    "text": "Element"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "onMoveFCDADown",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "fcda",
+                  "type": {
+                    "text": "Element"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "renderFCDAList",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderDataObjectPicker",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderDataAttributePicker",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderDataPickers",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderLimits",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderDataSetAttributes",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderHeader",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            }
+          ],
+          "mixins": [
+            {
+              "name": "ScopedElementsMixin",
+              "package": "@open-wc/scoped-elements/lit-element.js"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "data-set-element-editor",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "DataSetElementEditor",
+          "declaration": {
+            "name": "DataSetElementEditor",
+            "module": "src/editors/dataset/data-set-element-editor.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/editors/dataset/dataAttributePicker.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "dataAttributeTree",
+          "return": {
+            "type": {
+              "text": "Tree"
+            }
+          },
+          "parameters": [
+            {
+              "name": "server",
+              "type": {
+                "text": "Element"
+              }
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "dataAttributeTree",
+          "declaration": {
+            "name": "dataAttributeTree",
+            "module": "src/editors/dataset/dataAttributePicker.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/editors/dataset/dataObjectPicker.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "dataObjectTree",
+          "return": {
+            "type": {
+              "text": "Tree"
+            }
+          },
+          "parameters": [
+            {
+              "name": "server",
+              "type": {
+                "text": "Element"
+              }
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "dataObjectTree",
+          "declaration": {
+            "name": "dataObjectTree",
+            "module": "src/editors/dataset/dataObjectPicker.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/editors/dataset/foundation.spec.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/editors/dataset/foundation.testfiles.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "fcdaDescriptions",
+          "default": "` <SCL xmlns=\"http://www.iec.ch/61850/2003/SCL\" version=\"2007\" revision=\"B\" release=\"4\"> <Header id=\"ReportControl with description\" version=\"1\" revision=\"1\" toolID=\"OpenSCD, tada!\" nameStructure=\"IEDName\"> </Header> <IED name=\"IED\"> <Services> <ConfDataSet max=\"10\" maxAttributes=\"10\" /> </Services> <AccessPoint name=\"AP1\"> <Server> <Authentication></Authentication> <LDevice inst=\"ldInst1\" desc=\"First logical device\"> <LN0 lnClass=\"LLN0\" inst=\"\" lnType=\"LLN0\" desc=\"Configuration LN\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst1\" prefix=\"\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst1\" prefix=\"\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst1\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> <FCDA ldInst=\"ldInst1\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst1\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst1\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> <FCDA ldInst=\"ldInst1\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsA\" daName=\"cVal.mag.f\" fc=\"MX\" /> <FCDA ldInst=\"ldInst1\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsA\" daName=\"q\" fc=\"MX\" /> <FCDA ldInst=\"ldInst1\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsA\" daName=\"t\" fc=\"MX\" /> <FCDA ldInst=\"ldInst1\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsB\" fc=\"MX\" /> <FCDA ldInst=\"ldInst2\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"2\" doName=\"PhV.phsB\" fc=\"MX\" /> <FCDA ldInst=\"ldInst2\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"2\" doName=\"PhV.phsA.random\" fc=\"MX\" /> <FCDA ldInst=\"ldInst2\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"7000\" doName=\"PhV.phsA.random\" fc=\"MX\" /> <FCDA ldInst=\"ldInst2\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"2\" doName=\"BlahBlahBlah\" fc=\"MX\" /> <FCDA ldInst=\"ldInst2\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"3\" doName=\"PhV.phsA\" daName=\"nothingreally\" fc=\"MX\" /> <FCDA ldInst=\"ldInst2\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"3\" doName=\"PhV.phsA\" fc=\"MX\" /> <FCDA ldInst=\"ldInst999\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"3\" doName=\"PhV.phsA\" fc=\"MX\" /> <FCDA ldInst=\"ldInst1\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsC\" daName=\"cVal.mag.f\" fc=\"MX\" /> </DataSet> <DOI name=\"Beh\" desc=\"Behaviour\"> <DAI name=\"stVal\" desc=\"State\"/> </DOI> <DOI name=\"Mod\"> <DAI name=\"d\"> <Val>Mode</Val> </DAI> </DOI> </LN0> <LN prefix=\"prefix\" lnClass=\"MMXU\" inst=\"1\" lnType=\"MMXU\" desc=\"Line\"> <DOI name=\"PhV\"> <SDI name=\"phsA\"> <DAI name=\"d\"> <Val>Red Phase</Val> </DAI> </SDI> <SDI name=\"phsB\" desc=\"Phase B\"></SDI> <SDI name=\"phsC\" desc=\"Phase C\"> <SDI name=\"cVal\" desc=\"complex value\"> <SDI name=\"mag\" desc=\"magnitude\"> <DAI name=\"f\" desc=\"fundamental\" /> </SDI> </SDI> </SDI> </DOI> </LN> </LDevice> <LDevice inst=\"ldInst2\"> <LN prefix=\"prefix\" lnClass=\"MMXU\" inst=\"2\" lnType=\"MMXU\"> <DOI name=\"PhV\"> <SDI name=\"phsA\" desc=\"Phase A\"> <SDI name=\"random\" desc=\"Something\"> </SDI> </SDI> <SDI name=\"phsB\" desc=\"Phase B+\"> </SDI> </DOI> </LN> <LN prefix=\"prefix\" lnClass=\"MMXU\" inst=\"3\" lnType=\"MMXU\"> <DOI name=\"PhV\"> <SDI name=\"phsA\"> </SDI> </DOI> </LN> </LDevice> </Server> </AccessPoint> </IED> <DataTypeTemplates> <LNodeType lnClass=\"LLN0\" id=\"LLN0\"> <DO name=\"Beh\" type=\"ENS\"/> </LNodeType> <LNodeType lnClass=\"MMXU\" id=\"MMXU\"> <DO name=\"PhV\" type=\"WYE\"/> </LNodeType> <DOType cdc=\"ENS\" id=\"ENS\"> <DA name=\"stVal\" bType=\"Enum\" fc=\"ST\" /> <DA name=\"q\" bType=\"Quality\" fc=\"ST\" /> <DA name=\"t\" bType=\"Timestamp\" fc=\"ST\" /> <DA name=\"dc\" bType=\"VisString255\" fc=\"DC\" /> </DOType> <DOType cdc=\"WYE\" id=\"WYE\"> <SDO name=\"phsA\" type=\"CMV\" /> <SDO name=\"phsB\" type=\"CMV\" /> <SDO name=\"phsC\" type=\"CMV\" /> </DOType> <DOType cdc=\"CMV\" id=\"CMV\"> <DA name=\"cVal\" bType=\"Struct\" type=\"Vector\" fc=\"MX\"/> <DA name=\"q\" bType=\"Quality\" fc=\"MX\" /> <DA name=\"t\" bType=\"Timestamp\" fc=\"MX\" /> <DA name=\"d\" bType=\"VisString255\" fc=\"DC\" /> </DOType> <DAType id=\"Vector\"> <BDA name=\"mag\" bType=\"Struct\" type=\"AnalogueValue\" /> <BDA name=\"ang\" bType=\"Struct\" type=\"AnalogueValue\" /> </DAType> <DAType id=\"AnalogueValue\"> <BDA name=\"f\" bType=\"FLOAT32\" /> </DAType> </DataTypeTemplates> </SCL> `"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "fcdaDescriptions",
+          "declaration": {
+            "name": "fcdaDescriptions",
+            "module": "src/editors/dataset/foundation.testfiles.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/editors/dataset/foundation.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "addFCDAs",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "dataSet",
+              "type": {
+                "text": "Element"
+              }
+            },
+            {
+              "name": "paths",
+              "type": {
+                "text": "Element[][]"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "variable",
+          "name": "ldInst"
+        },
+        {
+          "kind": "variable",
+          "name": "prefix"
+        },
+        {
+          "kind": "variable",
+          "name": "lnClass"
+        },
+        {
+          "kind": "function",
+          "name": "addFCDOs",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "dataSet",
+              "type": {
+                "text": "Element"
+              }
+            },
+            {
+              "name": "fcPaths",
+              "type": {
+                "text": "{ path: Element[]; fc: string }[]"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "function",
+          "name": "getFcdaInstDesc",
+          "return": {
+            "type": {
+              "text": "fcdaDesc"
+            }
+          },
+          "parameters": [
+            {
+              "name": "fcda",
+              "type": {
+                "text": "Element"
+              }
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "addFCDAs",
+          "declaration": {
+            "name": "addFCDAs",
+            "module": "src/editors/dataset/foundation.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "addFCDOs",
+          "declaration": {
+            "name": "addFCDOs",
+            "module": "src/editors/dataset/foundation.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "getFcdaInstDesc",
+          "declaration": {
+            "name": "getFcdaInstDesc",
+            "module": "src/editors/dataset/foundation.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/editors/gsecontrol/gse-control-editor.spec.ts",
+      "declarations": [],
+      "exports": [
+        {
+          "kind": "custom-element-definition",
+          "name": "gse-control-editor",
+          "declaration": {
+            "name": "GseControlEditor",
+            "module": "/src/editors/gsecontrol/gse-control-editor.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/editors/gsecontrol/gse-control-editor.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "GseControlEditor",
+          "members": [
+            {
+              "kind": "field",
+              "name": "scopedElements",
+              "type": {
+                "text": "object"
+              },
+              "static": true,
+              "default": "{ 'oscd-action-list': OscdActionList, 'data-set-element-editor': DataSetElementEditor, 'oscd-outlined-button': OscdOutlinedButton, 'gse-control-element-editor': GseControlElementEditor, 'oscd-icon-button': OscdIconButton, 'oscd-icon': OscdIcon, 'oscd-dialog': OscdDialog, }"
+            },
+            {
+              "kind": "field",
+              "name": "selectionList",
+              "type": {
+                "text": "OscdActionList"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "selectGSEControlButton",
+              "type": {
+                "text": "OscdOutlinedButton"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "gseControlElementEditor",
+              "type": {
+                "text": "GseControlElementEditor"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "dataSetElementEditor",
+              "type": {
+                "text": "DataSetElementEditor"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderElementEditorContainer",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderSelectionList",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderToggleButton",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "field",
+              "name": "doc",
+              "type": {
+                "text": "XMLDocument"
+              },
+              "description": "The document being edited as provided to plugins by [[`OpenSCD`]].",
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "docVersion",
+              "type": {
+                "text": "unknown | undefined"
+              },
+              "description": "SCL change indicator",
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "selectCtrlBlock",
+              "type": {
+                "text": "Element | undefined"
+              },
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "selectedDataSet",
+              "type": {
+                "text": "Element | null | undefined"
+              },
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "selectDataSetDialog",
+              "type": {
+                "text": "OscdDialog"
+              },
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "newDataSet",
+              "type": {
+                "text": "OscdIconButton"
+              },
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "changeDataSet",
+              "type": {
+                "text": "OscdIconButton"
+              },
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "selectDataSet",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "text": "Element"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "addNewDataSet",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "control",
+                  "type": {
+                    "text": "Element"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "showSelectDataSetDialog",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderSelectDataSetDialog",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              },
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderDataSetElementContainer",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              },
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            }
+          ],
+          "superclass": {
+            "name": "BaseElementEditor",
+            "module": "/src/editors/base-element-editor.js"
+          },
+          "tagName": "gse-control-editor",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "GseControlEditor",
+          "declaration": {
+            "name": "GseControlEditor",
+            "module": "src/editors/gsecontrol/gse-control-editor.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/editors/gsecontrol/gse-control-element-editor.spec.ts",
+      "declarations": [],
+      "exports": [
+        {
+          "kind": "custom-element-definition",
+          "name": "gse-control-element-editor",
+          "declaration": {
+            "name": "GseControlElementEditor",
+            "module": "/src/editors/gsecontrol/gse-control-element-editor.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/editors/gsecontrol/gse-control-element-editor.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "GseControlElementEditor",
+          "members": [
+            {
+              "kind": "field",
+              "name": "scopedElements",
+              "type": {
+                "text": "object"
+              },
+              "static": true,
+              "default": "{ 'oscd-scl-text-field': OscdSclTextField, 'oscd-scl-select': OscdSclSelect, 'oscd-scl-checkbox': OscdSclCheckbox, 'oscd-text-button': OscdTextButton, 'oscd-icon': OscdIcon, 'oscd-checkbox': OscdCheckbox, }"
+            },
+            {
+              "kind": "field",
+              "name": "element",
+              "type": {
+                "text": "Element | null"
+              },
+              "default": "null",
+              "description": "The element being edited as provided to plugins by [[`OpenSCD`]]."
+            },
+            {
+              "kind": "field",
+              "name": "docVersion",
+              "type": {
+                "text": "unknown | undefined"
+              },
+              "description": "SCL change indicator"
+            },
+            {
+              "kind": "field",
+              "name": "gSE",
+              "type": {
+                "text": "Element | null"
+              },
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "gSEdiff",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "gSEControlDiff",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "gSEInputs",
+              "type": {
+                "text": "OscdSclTextField[]"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "gseSave",
+              "type": {
+                "text": "OscdTextButton"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "gSEControlInputs",
+              "type": {
+                "text": "(\n    | OscdSclTextField\n    | OscdSclSelect\n    | OscdSclCheckbox\n  )[]"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "gseControlSave",
+              "type": {
+                "text": "OscdTextButton"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "instType",
+              "type": {
+                "text": "OscdCheckbox | undefined"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "resetInputs",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "type",
+                  "default": "'GSEControl'",
+                  "type": {
+                    "text": "'GSEControl' | 'GSE'"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "onGSEControlInputChange",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "saveGSEControlChanges",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "onGSEInputChange",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "saveGSEChanges",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderGseContent",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderGseControlContent",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            }
+          ],
+          "mixins": [
+            {
+              "name": "ScopedElementsMixin",
+              "package": "@open-wc/scoped-elements/lit-element.js"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "gse-control-element-editor",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "GseControlElementEditor",
+          "declaration": {
+            "name": "GseControlElementEditor",
+            "module": "src/editors/gsecontrol/gse-control-element-editor.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/editors/gsecontrol/gseControl.testfiles.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "gseControlDoc",
+          "default": "` <SCL> <Communication> <SubNetwork name=\"subNet\" > <ConnectedAP iedName=\"IED\" apName=\"AP1\" > <GSE ldInst=\"ldInst1\" cbName=\"gse2\" > <Address> <P type=\"MAC-Address\">01-0C-CD-01-00-01</P> <P type=\"APPID\">0001</P> <P type=\"VLAN-ID\">001</P> <P type=\"VLAN-PRIORITY\">3</P> </Address> <MinTime unit=\"s\" multiplier=\"m\">2</MinTime> <MaxTime unit=\"s\" multiplier=\"m\">200</MaxTime> </GSE> <GSE ldInst=\"ldInst1\" cbName=\"gse3\" > <Address> <P xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"tP_MAC\" type=\"MAC-Address\">01-0C-CD-01-00-02</P> <P type=\"APPID\">0002</P> </Address> </GSE> </ConnectedAP> </SubNetwork> </Communication> <IED name=\"IED\" > <Services> <ConfDataSet max=\"15\" /> <GOOSE max=\"15\" /> </Services> <AccessPoint name=\"AP1\"> <Server> <LDevice inst=\"ldInst1\"> <LN0 lnClass=\"LLN0\" inst=\"\" lnType=\"LLN0\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> </DataSet> <DataSet name=\"datSet2\"> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> </DataSet> <GSEControl name=\"gse1\" type=\"GSSE\" appID=\"\" securityEnabled=\"Signature\" fixedOffs=\"true\" /> <GSEControl name=\"gse2\" type=\"GOOSE\" appID=\"someAppID\" desc=\"GOOSE with GSE\" datSet=\"datSet\" /> <GSEControl name=\"gse3\" type=\"GOOSE\" appID=\"someAppID\" desc=\"GOOSE with GSE\" /> </LN0> <LN prefix=\"prefix\" lnClass=\"MMXU\" inst=\"1\" lnType=\"MMXU\" /> </LDevice> </Server> </AccessPoint> </IED> <IED name=\"IED2\" > <AccessPoint name=\"AP1\"> <Server> <LDevice inst=\"ldInst1\"> <LN0 lnClass=\"LLN0\" inst=\"\" lnType=\"LLN0\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> </DataSet> <GSEControl name=\"gse1\" type=\"GSSE\" appID=\"\" securityEnabled=\"Signature\" fixedOffs=\"true\" /> <GSEControl name=\"gse2\" type=\"GOOSE\" appID=\"someAppID\" desc=\"GOOSE with GSE\" /> <GSEControl name=\"gse3\" type=\"GOOSE\" appID=\"someAppID\" desc=\"GOOSE with GSE\" /> </LN0> <LN prefix=\"prefix\" lnClass=\"MMXU\" inst=\"1\" lnType=\"MMXU\" /> </LDevice> </Server> </AccessPoint> </IED> <DataTypeTemplates> <LNodeType lnClass=\"LLN0\" id=\"LLN0\"> <DO name=\"Beh\" type=\"ENS\"/> </LNodeType> <LNodeType lnClass=\"MMXU\" id=\"MMXU\"> <DO name=\"PhV\" type=\"WYE\"/> </LNodeType> <DOType cdc=\"ENS\" id=\"ENS\"> <DA name=\"stVal\" bType=\"Enum\" fc=\"ST\" /> <DA name=\"q\" bType=\"Quality\" fc=\"ST\" /> <DA name=\"t\" bType=\"Timestamp\" fc=\"ST\" /> <DA name=\"dc\" bType=\"VisString255\" fc=\"DC\" /> </DOType> <DOType cdc=\"WYE\" id=\"WYE\"> <SDO name=\"phsA\" type=\"CMV\" /> <SDO name=\"phsB\" type=\"CMV\" /> <SDO name=\"phsC\" type=\"CMV\" /> <SDO name=\"phRes\" type=\"CustomWYE\" /> </DOType> <DOType cdc=\"WYE\" id=\"CustomWYE\" > <SDO name=\"phsA\" type=\"CMV\" /> </DOType> <DOType cdc=\"CMV\" id=\"CMV\"> <DA name=\"cVal\" bType=\"Struct\" type=\"Vector\" fc=\"MX\"/> <DA name=\"q\" bType=\"Quality\" fc=\"MX\" /> <DA name=\"t\" bType=\"Timestamp\" fc=\"MX\" /> <DA name=\"d\" bType=\"VisibleString255\" fc=\"DC\" /> </DOType> <DAType id=\"Vector\" > <BDA name=\"mag\" bType=\"Struct\" type=\"AnalogueValue\" /> <BDA name=\"ang\" bType=\"Struct\" type=\"AnalogueValue\" /> </DAType> <DAType id=\"AnalogueValue\" > <BDA name=\"f\" bType=\"FLOAT32\" /> </DAType> </DataTypeTemplates> </SCL> `"
+        },
+        {
+          "kind": "variable",
+          "name": "otherGseControlDoc",
+          "default": "` <SCL> <Communication> <SubNetwork name=\"subNet\" > <ConnectedAP iedName=\"IED\" apName=\"AP1\" > <GSE ldInst=\"ldInst1\" cbName=\"gse2\" > <Address> <P type=\"MAC-Address\">01-0C-CD-01-00-01</P> <P type=\"APPID\">0001</P> <P type=\"VLAN-ID\">001</P> <P type=\"VLAN-PRIORITY\">3</P> </Address> <MinTime unit=\"s\" multiplier=\"m\">2</MinTime> <MaxTime unit=\"s\" multiplier=\"m\">200</MaxTime> </GSE> <GSE ldInst=\"ldInst1\" cbName=\"gse3\" > <Address> <P xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"tP_MAC\" type=\"MAC-Address\">01-0C-CD-01-00-02</P> <P type=\"APPID\">0002</P> </Address> </GSE> </ConnectedAP> </SubNetwork> </Communication> <IED name=\"IED\" > <AccessPoint name=\"AP1\"> <Server> <LDevice inst=\"ldInst1\"> <LN0 lnClass=\"LLN0\" inst=\"\" lnType=\"LLN0\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> </DataSet> <GSEControl name=\"gse1\" type=\"GSSE\" appID=\"\" securityEnabled=\"Signature\" fixedOffs=\"true\" /> <GSEControl name=\"gse3\" type=\"GOOSE\" appID=\"someAppID\" desc=\"GOOSE with GSE\" /> </LN0> <LN prefix=\"prefix\" lnClass=\"MMXU\" inst=\"1\" lnType=\"MMXU\" /> </LDevice> </Server> </AccessPoint> </IED> <IED name=\"IED2\" > <AccessPoint name=\"AP1\"> <Server> <LDevice inst=\"ldInst1\"> <LN0 lnClass=\"LLN0\" inst=\"\" lnType=\"LLN0\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> </DataSet> <GSEControl name=\"gse1\" type=\"GSSE\" appID=\"\" securityEnabled=\"Signature\" fixedOffs=\"true\" /> <GSEControl name=\"gse3\" type=\"GOOSE\" appID=\"someAppID\" desc=\"GOOSE with GSE\" /> </LN0> <LN prefix=\"prefix\" lnClass=\"MMXU\" inst=\"1\" lnType=\"MMXU\" /> </LDevice> </Server> </AccessPoint> </IED> <DataTypeTemplates> <LNodeType lnClass=\"LLN0\" id=\"LLN0\"> <DO name=\"Beh\" type=\"ENS\"/> </LNodeType> <LNodeType lnClass=\"MMXU\" id=\"MMXU\"> <DO name=\"PhV\" type=\"WYE\"/> </LNodeType> <DOType cdc=\"ENS\" id=\"ENS\"> <DA name=\"stVal\" bType=\"Enum\" fc=\"ST\" /> <DA name=\"q\" bType=\"Quality\" fc=\"ST\" /> <DA name=\"t\" bType=\"Timestamp\" fc=\"ST\" /> <DA name=\"dc\" bType=\"VisString255\" fc=\"DC\" /> </DOType> <DOType cdc=\"WYE\" id=\"WYE\"> <SDO name=\"phsA\" type=\"CMV\" /> <SDO name=\"phsB\" type=\"CMV\" /> <SDO name=\"phsC\" type=\"CMV\" /> <SDO name=\"phRes\" type=\"CustomWYE\" /> </DOType> <DOType cdc=\"WYE\" id=\"CustomWYE\" > <SDO name=\"phsA\" type=\"CMV\" /> </DOType> <DOType cdc=\"CMV\" id=\"CMV\"> <DA name=\"cVal\" bType=\"Struct\" type=\"Vector\" fc=\"MX\"/> <DA name=\"q\" bType=\"Quality\" fc=\"MX\" /> <DA name=\"t\" bType=\"Timestamp\" fc=\"MX\" /> <DA name=\"d\" bType=\"VisibleString255\" fc=\"DC\" /> </DOType> <DAType id=\"Vector\" > <BDA name=\"mag\" bType=\"Struct\" type=\"AnalogueValue\" /> <BDA name=\"ang\" bType=\"Struct\" type=\"AnalogueValue\" /> </DAType> <DAType id=\"AnalogueValue\" > <BDA name=\"f\" bType=\"FLOAT32\" /> </DAType> </DataTypeTemplates> </SCL> `"
+        },
+        {
+          "kind": "variable",
+          "name": "gseControlDocWithDescs",
+          "default": "` <SCL xmlns=\"http://www.iec.ch/61850/2003/SCL\" version=\"2007\" revision=\"B\" release=\"4\"> <Header id=\"ReportControl with description\" version=\"1\" revision=\"1\" toolID=\"OpenSCD, tada!\" nameStructure=\"IEDName\"> </Header> <IED name=\"IED\"> <Services> <ConfDataSet max=\"15\" /> <GOOSE max=\"15\" /> </Services> <AccessPoint name=\"AP1\"> <Server> <Authentication></Authentication> <LDevice inst=\"ldInst1\" desc=\"Control\"> <LN0 lnClass=\"LLN0\" inst=\"\" lnType=\"LLN0\" desc=\"\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst1\" prefix=\"\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst1\" prefix=\"\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst1\" prefix=\"\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> </DataSet> <GSEControl name=\"gse2\" type=\"GOOSE\" appID=\"someAppID\" desc=\"GOOSE with GSE\" datSet=\"datSet\" /> <DOI name=\"Beh\"> <DAI name=\"d\"> <Val>Behaviour of IEC 61850 Test Mode</Val> </DAI> </DOI> <DOI name=\"Mod\" desc=\"Preferred description, just the Mode thanks\"> <DAI name=\"d\"> <Val>Mode of IEC 61850 Test Mode - not actually used</Val> </DAI> </DOI> </LN0> <LN prefix=\"prefix\" lnClass=\"MMXU\" inst=\"1\" lnType=\"MMXU\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst1\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsA\" daName=\"cVal.mag.f\" fc=\"MX\" /> <FCDA ldInst=\"ldInst1\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsA\" daName=\"q\" fc=\"MX\" /> </DataSet> </LN> </LDevice> </Server> </AccessPoint> </IED> <IED name=\"IED2\"> <AccessPoint name=\"AP1\"> <Server> <Authentication></Authentication> <LDevice inst=\"ldInst1\"> <LN0 lnClass=\"LLN0\" inst=\"\" lnType=\"LLN0\" desc=\"A happy LN0\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst1\" prefix=\"\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst1\" prefix=\"\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst1\" prefix=\"\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> </DataSet> </LN0> <LN prefix=\"prefix\" lnClass=\"MMXU\" inst=\"1\" lnType=\"MMXU\" /> </LDevice> </Server> </AccessPoint> </IED> <DataTypeTemplates> <LNodeType lnClass=\"LLN0\" id=\"LLN0\"> <DO name=\"Beh\" type=\"ENS\"/> </LNodeType> <LNodeType lnClass=\"MMXU\" id=\"MMXU\"> <DO name=\"PhV\" type=\"WYE\"/> </LNodeType> <DOType cdc=\"ENS\" id=\"ENS\"> <DA name=\"stVal\" bType=\"Enum\" fc=\"ST\" /> <DA name=\"q\" bType=\"Quality\" fc=\"ST\" /> <DA name=\"t\" bType=\"Timestamp\" fc=\"ST\" /> <DA name=\"dc\" bType=\"VisString255\" fc=\"DC\" /> </DOType> <DOType cdc=\"WYE\" id=\"WYE\"> <SDO name=\"phsA\" type=\"CMV\" /> <SDO name=\"phsB\" type=\"CMV\" /> <SDO name=\"phsC\" type=\"CMV\" /> <SDO name=\"phRes\" type=\"CustomWYE\" /> </DOType> <DOType cdc=\"WYE\" id=\"CustomWYE\"> <SDO name=\"phsA\" type=\"CMV\" /> </DOType> <DOType cdc=\"CMV\" id=\"CMV\"> <DA name=\"cVal\" bType=\"Struct\" type=\"Vector\" fc=\"MX\"/> <DA name=\"q\" bType=\"Quality\" fc=\"MX\" /> <DA name=\"t\" bType=\"Timestamp\" fc=\"MX\" /> <DA name=\"d\" bType=\"VisString255\" fc=\"DC\" /> </DOType> <DAType id=\"Vector\"> <BDA name=\"mag\" bType=\"Struct\" type=\"AnalogueValue\" /> <BDA name=\"ang\" bType=\"Struct\" type=\"AnalogueValue\" /> </DAType> <DAType id=\"AnalogueValue\"> <BDA name=\"f\" bType=\"FLOAT32\" /> </DAType> </DataTypeTemplates> </SCL> `"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "gseControlDoc",
+          "declaration": {
+            "name": "gseControlDoc",
+            "module": "src/editors/gsecontrol/gseControl.testfiles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "otherGseControlDoc",
+          "declaration": {
+            "name": "otherGseControlDoc",
+            "module": "src/editors/gsecontrol/gseControl.testfiles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "gseControlDocWithDescs",
+          "declaration": {
+            "name": "gseControlDocWithDescs",
+            "module": "src/editors/gsecontrol/gseControl.testfiles.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/editors/report/foundation.spec.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/editors/report/foundation.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "updateMaxClients",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "reportControl",
+              "type": {
+                "text": "Element"
+              }
+            },
+            {
+              "name": "max",
+              "type": {
+                "text": "string | null"
+              }
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "updateMaxClients",
+          "declaration": {
+            "name": "updateMaxClients",
+            "module": "src/editors/report/foundation.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/editors/report/report-control-editor.spec.ts",
+      "declarations": [],
+      "exports": [
+        {
+          "kind": "custom-element-definition",
+          "name": "report-control-editor",
+          "declaration": {
+            "name": "ReportControlEditor",
+            "module": "/src/editors/report/report-control-editor.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/editors/report/report-control-editor.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "ReportControlEditor",
+          "members": [
+            {
+              "kind": "field",
+              "name": "scopedElements",
+              "type": {
+                "text": "object"
+              },
+              "static": true,
+              "default": "{ 'oscd-action-list': OscdActionList, 'data-set-element-editor': DataSetElementEditor, 'oscd-outlined-button': OscdOutlinedButton, 'report-control-element-editor': ReportControlElementEditor, 'oscd-icon-button': OscdIconButton, 'oscd-icon': OscdIcon, 'oscd-dialog': OscdDialog, }"
+            },
+            {
+              "kind": "field",
+              "name": "selectionList",
+              "type": {
+                "text": "OscdActionList"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "selectReportControlButton",
+              "type": {
+                "text": "OscdOutlinedButton"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "rpControlElementEditor",
+              "type": {
+                "text": "ReportControlElementEditor"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "dataSetElementEditor",
+              "type": {
+                "text": "DataSetElementEditor"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderElementEditorContainer",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderSelectionList",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderToggleButton",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "field",
+              "name": "doc",
+              "type": {
+                "text": "XMLDocument"
+              },
+              "description": "The document being edited as provided to plugins by [[`OpenSCD`]].",
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "docVersion",
+              "type": {
+                "text": "unknown | undefined"
+              },
+              "description": "SCL change indicator",
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "selectCtrlBlock",
+              "type": {
+                "text": "Element | undefined"
+              },
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "selectedDataSet",
+              "type": {
+                "text": "Element | null | undefined"
+              },
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "selectDataSetDialog",
+              "type": {
+                "text": "OscdDialog"
+              },
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "newDataSet",
+              "type": {
+                "text": "OscdIconButton"
+              },
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "changeDataSet",
+              "type": {
+                "text": "OscdIconButton"
+              },
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "selectDataSet",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "text": "Element"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "addNewDataSet",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "control",
+                  "type": {
+                    "text": "Element"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "showSelectDataSetDialog",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderSelectDataSetDialog",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              },
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderDataSetElementContainer",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              },
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            }
+          ],
+          "superclass": {
+            "name": "BaseElementEditor",
+            "module": "/src/editors/base-element-editor.js"
+          },
+          "tagName": "report-control-editor",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ReportControlEditor",
+          "declaration": {
+            "name": "ReportControlEditor",
+            "module": "src/editors/report/report-control-editor.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/editors/report/report-control-element-editor.spec.ts",
+      "declarations": [],
+      "exports": [
+        {
+          "kind": "custom-element-definition",
+          "name": "report-control-element-editor",
+          "declaration": {
+            "name": "ReportControlElementEditor",
+            "module": "/src/editors/report/report-control-element-editor.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/editors/report/report-control-element-editor.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "ReportControlElementEditor",
+          "members": [
+            {
+              "kind": "field",
+              "name": "scopedElements",
+              "type": {
+                "text": "object"
+              },
+              "static": true,
+              "default": "{ 'oscd-scl-text-field': OscdSclTextField, 'oscd-scl-select': OscdSclSelect, 'oscd-scl-checkbox': OscdSclCheckbox, 'oscd-text-button': OscdTextButton, 'oscd-icon': OscdIcon, 'oscd-checkbox': OscdCheckbox, }"
+            },
+            {
+              "kind": "field",
+              "name": "doc",
+              "type": {
+                "text": "XMLDocument"
+              },
+              "description": "The document being edited as provided to plugins by [[`OpenSCD`]]."
+            },
+            {
+              "kind": "field",
+              "name": "element",
+              "type": {
+                "text": "Element | null"
+              },
+              "default": "null",
+              "description": "The element being edited as provided to plugins by [[`OpenSCD`]]."
+            },
+            {
+              "kind": "field",
+              "name": "docVersion",
+              "type": {
+                "text": "unknown | undefined"
+              },
+              "description": "SCL change indicator"
+            },
+            {
+              "kind": "field",
+              "name": "optFieldsDiff",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "trgOpsDiff",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "reportControlDiff",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "optFieldsInputs",
+              "type": {
+                "text": "OscdSclCheckbox[]"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "optFieldsSave",
+              "type": {
+                "text": "OscdTextButton"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "trgOpsInputs",
+              "type": {
+                "text": "OscdSclCheckbox[]"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "trgOpsSave",
+              "type": {
+                "text": "OscdTextButton"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "reportControlInputs",
+              "type": {
+                "text": "(OscdSclTextField | OscdSclSelect | OscdSclCheckbox)[]"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "reportControlSave",
+              "type": {
+                "text": "OscdTextButton"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "rptEnabledInput",
+              "type": {
+                "text": "OscdSclTextField"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "resetInputs",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "onOptFieldsInputChange",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "saveOptFieldChanges",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "onTrgOpsInputChange",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "saveTrgOpsChanges",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "onReportControlInputChange",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "saveReportControlChanges",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderOptFieldsContent",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderTrgOpsContent",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderChildElements",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderReportControlContent",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            }
+          ],
+          "mixins": [
+            {
+              "name": "ScopedElementsMixin",
+              "package": "@open-wc/scoped-elements/lit-element.js"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "report-control-element-editor",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ReportControlElementEditor",
+          "declaration": {
+            "name": "ReportControlElementEditor",
+            "module": "src/editors/report/report-control-element-editor.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/editors/report/reportControl.testfiles.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "reportControlDoc",
+          "default": "` <SCL> <IED name=\"IED\" > <Services> <ConfDataSet max=\"15\" /> <ConfReportControl max=\"15\" /> </Services> <AccessPoint name=\"AP1\"> <Server> <LDevice inst=\"ldInst1\"> <LN0 lnClass=\"LLN0\" inst=\"\" lnType=\"LLN0\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> </DataSet> <ReportControl name=\"rp1\" buffered=\"true\" rptID=\"\" /> <ReportControl name=\"rp2\" buffered=\"true\" datSet=\"datSet\" intgPd=\"1000\" bufTime=\"100\" indexed=\"true\" rptID=\"someID\" desc=\"desc\" confRev=\"53\"> <TrgOps dchg=\"true\" qchg=\"true\" dupd=\"true\" period=\"true\" gi=\"true\"/> <OptFields seqNum=\"true\" timeStamp=\"true\" dataSet=\"true\" reasonCode=\"true\" dataRef=\"true\" entryID=\"true\" configRef=\"true\" bufOvfl=\"true\" /> <RptEnabled max=\"5\" > </RptEnabled> </ReportControl> </LN0> <LN prefix=\"prefix\" lnClass=\"MMXU\" inst=\"1\" lnType=\"MMXU\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"Phv.phsA\" daName=\"cVal.mag.f\" fc=\"MX\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"Phv.phsA\" daName=\"q\" fc=\"MX\" /> </DataSet> <DataSet name=\"datSet2\"> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> </DataSet> <ReportControl name=\"rp3\" /> </LN> </LDevice> </Server> </AccessPoint> </IED> <IED name=\"IED2\" > <AccessPoint name=\"AP1\"> <Server> <LDevice inst=\"ldInst1\"> <LN0 lnClass=\"LLN0\" inst=\"\" lnType=\"LLN0\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> </DataSet> <ReportControl name=\"rp1\" buffered=\"true\" rptID=\"\" /> <ReportControl name=\"rp2\" buffered=\"true\" datSet=\"datSet\" intgPd=\"1000\" bufTime=\"100\" indexed=\"true\" rptID=\"someID\" desc=\"desc\" confRev=\"53\"> <TrgOps dchg=\"true\" qchg=\"true\" dupd=\"true\" period=\"true\" gi=\"true\"/> <OptFields seqNum=\"true\" timeStamp=\"true\" dataSet=\"true\" reasonCode=\"true\" dataRef=\"true\" entryID=\"true\" configRef=\"true\" bufOvfl=\"true\" /> <RptEnabled max=\"5\" > </RptEnabled> </ReportControl> </LN0> <LN prefix=\"prefix\" lnClass=\"MMXU\" inst=\"1\" lnType=\"MMXU\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"Phv.phsA\" daName=\"cVal.mag.f\" fc=\"MX\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"Phv.phsA\" daName=\"q\" fc=\"MX\" /> </DataSet> <ReportControl name=\"rp3\" datSet=\"datSet\" /> <ReportControl name=\"rp4\" datSet=\"datSet\"> <OptFields seqNum=\"true\" timeStamp=\"true\" dataSet=\"true\" reasonCode=\"true\" dataRef=\"true\" entryID=\"true\" configRef=\"true\" bufOvfl=\"true\" /> </ReportControl> </LN> </LDevice> </Server> </AccessPoint> </IED> <DataTypeTemplates> <LNodeType lnClass=\"LLN0\" id=\"LLN0\"> <DO name=\"Beh\" type=\"ENS\"/> </LNodeType> <LNodeType lnClass=\"MMXU\" id=\"MMXU\"> <DO name=\"PhV\" type=\"WYE\"/> </LNodeType> <DOType cdc=\"ENS\" id=\"ENS\"> <DA name=\"stVal\" bType=\"Enum\" fc=\"ST\" /> <DA name=\"q\" bType=\"Quality\" fc=\"ST\" /> <DA name=\"t\" bType=\"Timestamp\" fc=\"ST\" /> <DA name=\"dc\" bType=\"VisString255\" fc=\"DC\" /> </DOType> <DOType cdc=\"WYE\" id=\"WYE\"> <SDO name=\"phsA\" type=\"CMV\" /> <SDO name=\"phsB\" type=\"CMV\" /> <SDO name=\"phsC\" type=\"CMV\" /> <SDO name=\"phRes\" type=\"CustomWYE\" /> </DOType> <DOType cdc=\"WYE\" id=\"CustomWYE\" > <SDO name=\"phsA\" type=\"CMV\" /> </DOType> <DOType cdc=\"CMV\" id=\"CMV\"> <DA name=\"cVal\" bType=\"Struct\" type=\"Vector\" fc=\"MX\"/> <DA name=\"q\" bType=\"Quality\" fc=\"MX\" /> <DA name=\"t\" bType=\"Timestamp\" fc=\"MX\" /> <DA name=\"d\" bType=\"VisibleString255\" fc=\"DC\" /> </DOType> <DAType id=\"Vector\" > <BDA name=\"mag\" bType=\"Struct\" type=\"AnalogueValue\" /> <BDA name=\"ang\" bType=\"Struct\" type=\"AnalogueValue\" /> </DAType> <DAType id=\"AnalogueValue\" > <BDA name=\"f\" bType=\"FLOAT32\" /> </DAType> </DataTypeTemplates> </SCL> `"
+        },
+        {
+          "kind": "variable",
+          "name": "otherReportControlDoc",
+          "default": "` <SCL> <IED name=\"IED\" > <Services> <ConfDataSet max=\"15\" /> <GOOSE max=\"15\" /> </Services> <AccessPoint name=\"AP1\"> <Server> <LDevice inst=\"ldInst1\"> <LN0 lnClass=\"LLN0\" inst=\"\" lnType=\"LLN0\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> </DataSet> <ReportControl name=\"rp1\" buffered=\"true\" rptID=\"\" /> <ReportControl name=\"rp3\" buffered=\"true\" datSet=\"datSet\" intgPd=\"1000\" bufTime=\"100\" indexed=\"true\" rptID=\"someID\" desc=\"desc\" confRev=\"53\"> <TrgOps dchg=\"true\" qchg=\"true\" dupd=\"true\" period=\"true\" gi=\"true\"/> <OptFields seqNum=\"true\" timeStamp=\"true\" dataSet=\"true\" reasonCode=\"true\" dataRef=\"true\" entryID=\"true\" configRef=\"true\" bufOvfl=\"true\" /> <RptEnabled max=\"5\" > </RptEnabled> </ReportControl> </LN0> <LN prefix=\"prefix\" lnClass=\"MMXU\" inst=\"1\" lnType=\"MMXU\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"Phv.phsA\" daName=\"cVal.mag.f\" fc=\"MX\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"Phv.phsA\" daName=\"q\" fc=\"MX\" /> </DataSet> </LN> </LDevice> </Server> </AccessPoint> </IED> <IED name=\"IED2\" > <AccessPoint name=\"AP1\"> <Server> <LDevice inst=\"ldInst1\"> <LN0 lnClass=\"LLN0\" inst=\"\" lnType=\"LLN0\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> </DataSet> <GSEControl name=\"pr1\" rptID=\"\" buffered=\"true\" datSet=\"datSet\" /> <GSEControl name=\"pr2\" rptID=\"\" buffered=\"false\" datSet=\"datSet\" /> </LN0> <LN prefix=\"prefix\" lnClass=\"MMXU\" inst=\"1\" lnType=\"MMXU\" /> </LDevice> </Server> </AccessPoint> </IED> <DataTypeTemplates> <LNodeType lnClass=\"LLN0\" id=\"LLN0\"> <DO name=\"Beh\" type=\"ENS\"/> </LNodeType> <LNodeType lnClass=\"MMXU\" id=\"MMXU\"> <DO name=\"PhV\" type=\"WYE\"/> </LNodeType> <DOType cdc=\"ENS\" id=\"ENS\"> <DA name=\"stVal\" bType=\"Enum\" fc=\"ST\" /> <DA name=\"q\" bType=\"Quality\" fc=\"ST\" /> <DA name=\"t\" bType=\"Timestamp\" fc=\"ST\" /> <DA name=\"dc\" bType=\"VisString255\" fc=\"DC\" /> </DOType> <DOType cdc=\"WYE\" id=\"WYE\"> <SDO name=\"phsA\" type=\"CMV\" /> <SDO name=\"phsB\" type=\"CMV\" /> <SDO name=\"phsC\" type=\"CMV\" /> <SDO name=\"phRes\" type=\"CustomWYE\" /> </DOType> <DOType cdc=\"WYE\" id=\"CustomWYE\" > <SDO name=\"phsA\" type=\"CMV\" /> </DOType> <DOType cdc=\"CMV\" id=\"CMV\"> <DA name=\"cVal\" bType=\"Struct\" type=\"Vector\" fc=\"MX\"/> <DA name=\"q\" bType=\"Quality\" fc=\"MX\" /> <DA name=\"t\" bType=\"Timestamp\" fc=\"MX\" /> <DA name=\"d\" bType=\"VisibleString255\" fc=\"DC\" /> </DOType> <DAType id=\"Vector\" > <BDA name=\"mag\" bType=\"Struct\" type=\"AnalogueValue\" /> <BDA name=\"ang\" bType=\"Struct\" type=\"AnalogueValue\" /> </DAType> <DAType id=\"AnalogueValue\" > <BDA name=\"f\" bType=\"FLOAT32\" /> </DAType> </DataTypeTemplates> </SCL> `"
+        },
+        {
+          "kind": "variable",
+          "name": "reportControlDocWithDescs",
+          "default": "` <SCL xmlns=\"http://www.iec.ch/61850/2003/SCL\" version=\"2007\" revision=\"B\" release=\"4\"> <Header id=\"ReportControl with description\" version=\"1\" revision=\"1\" toolID=\"OpenSCD, tada!\" nameStructure=\"IEDName\"> </Header> <IED name=\"IED\"> <Services> <ConfDataSet max=\"15\" /> <GOOSE max=\"15\" /> </Services> <AccessPoint name=\"AP1\"> <Server> <Authentication></Authentication> <LDevice inst=\"ldInst1\" desc=\"Control\"> <LN0 lnClass=\"LLN0\" inst=\"\" lnType=\"LLN0\" desc=\"\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst1\" prefix=\"\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst1\" prefix=\"\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst1\" prefix=\"\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> </DataSet> <ReportControl name=\"rp3\" buffered=\"true\" datSet=\"datSet\" intgPd=\"1000\" bufTime=\"100\" indexed=\"true\" rptID=\"someID\" desc=\"desc\" confRev=\"53\"> <TrgOps dchg=\"true\" qchg=\"true\" dupd=\"true\" period=\"true\" gi=\"true\"/> <OptFields seqNum=\"true\" timeStamp=\"true\" dataSet=\"true\" reasonCode=\"true\" dataRef=\"true\" entryID=\"true\" configRef=\"true\" bufOvfl=\"true\" /> <RptEnabled max=\"5\"> </RptEnabled> </ReportControl> <DOI name=\"Beh\"> <DAI name=\"d\"> <Val>Behaviour of IEC 61850 Test Mode</Val> </DAI> </DOI> <DOI name=\"Mod\" desc=\"Preferred description, just the Mode thanks\"> <DAI name=\"d\"> <Val>Mode of IEC 61850 Test Mode - not actually used</Val> </DAI> </DOI> </LN0> <LN prefix=\"prefix\" lnClass=\"MMXU\" inst=\"1\" lnType=\"MMXU\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst1\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsA\" daName=\"cVal.mag.f\" fc=\"MX\" /> <FCDA ldInst=\"ldInst1\" prefix=\"prefix\" lnClass=\"MMXU\" lnInst=\"1\" doName=\"PhV.phsA\" daName=\"q\" fc=\"MX\" /> </DataSet> </LN> </LDevice> </Server> </AccessPoint> </IED> <IED name=\"IED2\"> <AccessPoint name=\"AP1\"> <Server> <Authentication></Authentication> <LDevice inst=\"ldInst1\"> <LN0 lnClass=\"LLN0\" inst=\"\" lnType=\"LLN0\" desc=\"A happy LN0\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst1\" prefix=\"\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst1\" prefix=\"\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst1\" prefix=\"\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> </DataSet> </LN0> <LN prefix=\"prefix\" lnClass=\"MMXU\" inst=\"1\" lnType=\"MMXU\" /> </LDevice> </Server> </AccessPoint> </IED> <DataTypeTemplates> <LNodeType lnClass=\"LLN0\" id=\"LLN0\"> <DO name=\"Beh\" type=\"ENS\"/> </LNodeType> <LNodeType lnClass=\"MMXU\" id=\"MMXU\"> <DO name=\"PhV\" type=\"WYE\"/> </LNodeType> <DOType cdc=\"ENS\" id=\"ENS\"> <DA name=\"stVal\" bType=\"Enum\" fc=\"ST\" /> <DA name=\"q\" bType=\"Quality\" fc=\"ST\" /> <DA name=\"t\" bType=\"Timestamp\" fc=\"ST\" /> <DA name=\"dc\" bType=\"VisString255\" fc=\"DC\" /> </DOType> <DOType cdc=\"WYE\" id=\"WYE\"> <SDO name=\"phsA\" type=\"CMV\" /> <SDO name=\"phsB\" type=\"CMV\" /> <SDO name=\"phsC\" type=\"CMV\" /> <SDO name=\"phRes\" type=\"CustomWYE\" /> </DOType> <DOType cdc=\"WYE\" id=\"CustomWYE\"> <SDO name=\"phsA\" type=\"CMV\" /> </DOType> <DOType cdc=\"CMV\" id=\"CMV\"> <DA name=\"cVal\" bType=\"Struct\" type=\"Vector\" fc=\"MX\"/> <DA name=\"q\" bType=\"Quality\" fc=\"MX\" /> <DA name=\"t\" bType=\"Timestamp\" fc=\"MX\" /> <DA name=\"d\" bType=\"VisString255\" fc=\"DC\" /> </DOType> <DAType id=\"Vector\"> <BDA name=\"mag\" bType=\"Struct\" type=\"AnalogueValue\" /> <BDA name=\"ang\" bType=\"Struct\" type=\"AnalogueValue\" /> </DAType> <DAType id=\"AnalogueValue\"> <BDA name=\"f\" bType=\"FLOAT32\" /> </DAType> </DataTypeTemplates> </SCL> `"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "reportControlDoc",
+          "declaration": {
+            "name": "reportControlDoc",
+            "module": "src/editors/report/reportControl.testfiles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "otherReportControlDoc",
+          "declaration": {
+            "name": "otherReportControlDoc",
+            "module": "src/editors/report/reportControl.testfiles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "reportControlDocWithDescs",
+          "declaration": {
+            "name": "reportControlDocWithDescs",
+            "module": "src/editors/report/reportControl.testfiles.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/editors/sampledvalue/sampled-value-control-editor.spec.ts",
+      "declarations": [],
+      "exports": [
+        {
+          "kind": "custom-element-definition",
+          "name": "sampled-value-control-editor",
+          "declaration": {
+            "name": "SampledValueControlEditor",
+            "module": "/src/editors/sampledvalue/sampled-value-control-editor.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/editors/sampledvalue/sampled-value-control-editor.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "SampledValueControlEditor",
+          "members": [
+            {
+              "kind": "field",
+              "name": "scopedElements",
+              "type": {
+                "text": "object"
+              },
+              "static": true,
+              "default": "{ 'oscd-action-list': OscdActionList, 'data-set-element-editor': DataSetElementEditor, 'oscd-outlined-button': OscdOutlinedButton, 'sampled-value-control-element-editor': SampledValueControlElementEditor, 'oscd-icon-button': OscdIconButton, 'oscd-icon': OscdIcon, 'oscd-dialog': OscdDialog, }"
+            },
+            {
+              "kind": "field",
+              "name": "selectionList",
+              "type": {
+                "text": "OscdActionList"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "selectSampledValueControlButton",
+              "type": {
+                "text": "OscdOutlinedButton"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "elementContainer",
+              "type": {
+                "text": "SampledValueControlElementEditor | undefined"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "dataSetElementEditor",
+              "type": {
+                "text": "DataSetElementEditor"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderElementEditorContainer",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderSelectionList",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderToggleButton",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "field",
+              "name": "doc",
+              "type": {
+                "text": "XMLDocument"
+              },
+              "description": "The document being edited as provided to plugins by [[`OpenSCD`]].",
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "docVersion",
+              "type": {
+                "text": "unknown | undefined"
+              },
+              "description": "SCL change indicator",
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "selectCtrlBlock",
+              "type": {
+                "text": "Element | undefined"
+              },
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "selectedDataSet",
+              "type": {
+                "text": "Element | null | undefined"
+              },
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "selectDataSetDialog",
+              "type": {
+                "text": "OscdDialog"
+              },
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "newDataSet",
+              "type": {
+                "text": "OscdIconButton"
+              },
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "changeDataSet",
+              "type": {
+                "text": "OscdIconButton"
+              },
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "selectDataSet",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "text": "Element"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "addNewDataSet",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "control",
+                  "type": {
+                    "text": "Element"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "showSelectDataSetDialog",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderSelectDataSetDialog",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              },
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderDataSetElementContainer",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              },
+              "inheritedFrom": {
+                "name": "BaseElementEditor",
+                "module": "src/editors/base-element-editor.ts"
+              }
+            }
+          ],
+          "superclass": {
+            "name": "BaseElementEditor",
+            "module": "/src/editors/base-element-editor.js"
+          },
+          "tagName": "sampled-value-control-editor",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "SampledValueControlEditor",
+          "declaration": {
+            "name": "SampledValueControlEditor",
+            "module": "src/editors/sampledvalue/sampled-value-control-editor.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/editors/sampledvalue/sampled-value-control-element-editor.spec.ts",
+      "declarations": [],
+      "exports": [
+        {
+          "kind": "custom-element-definition",
+          "name": "sampled-value-control-element-editor",
+          "declaration": {
+            "name": "SampledValueControlElementEditor",
+            "module": "/src/editors/sampledvalue/sampled-value-control-element-editor.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/editors/sampledvalue/sampled-value-control-element-editor.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "SampledValueControlElementEditor",
+          "members": [
+            {
+              "kind": "field",
+              "name": "scopedElements",
+              "type": {
+                "text": "object"
+              },
+              "static": true,
+              "default": "{ 'oscd-scl-text-field': OscdSclTextField, 'oscd-scl-select': OscdSclSelect, 'oscd-scl-checkbox': OscdSclCheckbox, 'oscd-text-button': OscdTextButton, 'oscd-icon': OscdIcon, 'oscd-checkbox': OscdCheckbox, }"
+            },
+            {
+              "kind": "field",
+              "name": "doc",
+              "type": {
+                "text": "XMLDocument"
+              },
+              "description": "The document being edited as provided to plugins by [[`OpenSCD`]]."
+            },
+            {
+              "kind": "field",
+              "name": "element",
+              "type": {
+                "text": "Element | null"
+              },
+              "default": "null",
+              "description": "The element being edited as provided to plugins by [[`OpenSCD`]]."
+            },
+            {
+              "kind": "field",
+              "name": "docVersion",
+              "type": {
+                "text": "unknown | undefined"
+              },
+              "description": "SCL change indicator"
+            },
+            {
+              "kind": "field",
+              "name": "sMV",
+              "type": {
+                "text": "Element | null"
+              },
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "sMVdiff",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "smvOptsDiff",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "sampledValueControlDiff",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "sampledValueControlInputs",
+              "type": {
+                "text": "(\n    | OscdSclTextField\n    | OscdSclSelect\n    | OscdSclCheckbox\n  )[]"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "smvControlSave",
+              "type": {
+                "text": "OscdTextButton"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "sMVInputs",
+              "type": {
+                "text": "OscdSclTextField[]"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "smvSave",
+              "type": {
+                "text": "OscdTextButton"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "smvOptsInputs",
+              "type": {
+                "text": "OscdSclCheckbox[]"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "smvOptsSave",
+              "type": {
+                "text": "OscdTextButton"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "instType",
+              "type": {
+                "text": "OscdCheckbox | undefined"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "resetInputs",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "type",
+                  "default": "'SampledValueControl'",
+                  "type": {
+                    "text": "'SampledValueControl' | 'SMV'"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "onSampledValueControlInputChange",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "saveSampledValueControlChanges",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "onSMVInputChange",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "saveSMVChanges",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "onSmvOptsInputChange",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "saveSmvOptsChanges",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderSmvContent",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderSmvOptsContent",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderOtherElements",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderSmvControlContent",
+              "privacy": "private"
+            }
+          ],
+          "mixins": [
+            {
+              "name": "ScopedElementsMixin",
+              "package": "@open-wc/scoped-elements/lit-element.js"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "sampled-value-control-element-editor",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "SampledValueControlElementEditor",
+          "declaration": {
+            "name": "SampledValueControlElementEditor",
+            "module": "src/editors/sampledvalue/sampled-value-control-element-editor.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/editors/sampledvalue/smvControl.testfiles.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "smvControlDoc",
+          "default": "` <SCL> <Communication> <SubNetwork name=\"subNet\" > <ConnectedAP iedName=\"IED\" apName=\"AP1\" > <SMV ldInst=\"ldInst1\" cbName=\"smv2\" > <Address> <P type=\"MAC-Address\">01-0C-CD-04-00-01</P> <P type=\"APPID\">4001</P> <P type=\"VLAN-ID\">001</P> <P type=\"VLAN-PRIORITY\">3</P> </Address> </SMV> <SMV ldInst=\"ldInst1\" cbName=\"smv3\" > <Address> <P xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"tP_MAC\" type=\"MAC-Address\">01-0C-CD-04-00-02</P> <P type=\"APPID\">0002</P> </Address> </SMV> </ConnectedAP> </SubNetwork> </Communication> <IED name=\"IED\" > <Services> <ConfDataSet max=\"15\" /> <SMVsc max=\"15\" /> </Services> <AccessPoint name=\"AP1\"> <Server> <LDevice inst=\"ldInst1\"> <LN0 lnClass=\"LLN0\" inst=\"\" lnType=\"LLN0\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> </DataSet> <DataSet name=\"datSet2\"> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> </DataSet> <SampledValueControl name=\"smv1\" multicast=\"false\" smvID=\"\" securityEnabled=\"Signature\" smpMod=\"SmpPerSec\" smpRate=\"4000\" nofASDU=\"1\" /> <SampledValueControl name=\"smv2\" smvID=\"someSmvID\" desc=\"SMV with SMV\" datSet=\"datSet\" smpMod=\"SmpPerPeriod\" smpRate=\"80\" nofASDU=\"1\" confRev=\"43\"> <SmvOpts refreshTime=\"true\" sampleSynchronized=\"true\" sampleRate=\"true\" dataSet=\"true\" security=\"true\" timestamp=\"true\" synchSourceId=\"true\" /> </SampledValueControl> <SampledValueControl name=\"smv3\" smvID=\"someSmvID\" desc=\"SMV with SMV\" smpMod=\"SecPerSmp\" smpRate=\"1\" nofASDU=\"1\"/> </LN0> <LN prefix=\"prefix\" lnClass=\"MMXU\" inst=\"1\" lnType=\"MMXU\" /> </LDevice> </Server> </AccessPoint> </IED> <IED name=\"IED2\" > <AccessPoint name=\"AP1\"> <Server> <LDevice inst=\"ldInst1\"> <LN0 lnClass=\"LLN0\" inst=\"\" lnType=\"LLN0\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> </DataSet> <SampledValueControl name=\"smv1\" smvID=\"\" securityEnabled=\"Signature\" /> <SampledValueControl name=\"smv2\" smvID=\"someSmvID\" desc=\"SMV with SMV\" datSet=\"datSet\" /> <SampledValueControl name=\"smv3\" smvID=\"someSmvID\" desc=\"SMV with SMV\" /> </LN0> <LN prefix=\"prefix\" lnClass=\"MMXU\" inst=\"1\" lnType=\"MMXU\" /> </LDevice> </Server> </AccessPoint> </IED> <DataTypeTemplates> <LNodeType lnClass=\"LLN0\" id=\"LLN0\"> <DO name=\"Beh\" type=\"ENS\"/> </LNodeType> <LNodeType lnClass=\"MMXU\" id=\"MMXU\"> <DO name=\"PhV\" type=\"WYE\"/> </LNodeType> <DOType cdc=\"ENS\" id=\"ENS\"> <DA name=\"stVal\" bType=\"Enum\" fc=\"ST\" /> <DA name=\"q\" bType=\"Quality\" fc=\"ST\" /> <DA name=\"t\" bType=\"Timestamp\" fc=\"ST\" /> <DA name=\"dc\" bType=\"VisString255\" fc=\"DC\" /> </DOType> <DOType cdc=\"WYE\" id=\"WYE\"> <SDO name=\"phsA\" type=\"CMV\" /> <SDO name=\"phsB\" type=\"CMV\" /> <SDO name=\"phsC\" type=\"CMV\" /> <SDO name=\"phRes\" type=\"CustomWYE\" /> </DOType> <DOType cdc=\"WYE\" id=\"CustomWYE\" > <SDO name=\"phsA\" type=\"CMV\" /> </DOType> <DOType cdc=\"CMV\" id=\"CMV\"> <DA name=\"cVal\" bType=\"Struct\" type=\"Vector\" fc=\"MX\"/> <DA name=\"q\" bType=\"Quality\" fc=\"MX\" /> <DA name=\"t\" bType=\"Timestamp\" fc=\"MX\" /> <DA name=\"d\" bType=\"VisibleString255\" fc=\"DC\" /> </DOType> <DAType id=\"Vector\" > <BDA name=\"mag\" bType=\"Struct\" type=\"AnalogueValue\" /> <BDA name=\"ang\" bType=\"Struct\" type=\"AnalogueValue\" /> </DAType> <DAType id=\"AnalogueValue\" > <BDA name=\"f\" bType=\"FLOAT32\" /> </DAType> </DataTypeTemplates> </SCL> `"
+        },
+        {
+          "kind": "variable",
+          "name": "otherSmvControlDoc",
+          "default": "` <SCL> <Communication> <SubNetwork name=\"subNet\" > <ConnectedAP iedName=\"IED\" apName=\"AP1\" > <SMV ldInst=\"ldInst1\" cbName=\"smv2\" > <Address> <P type=\"MAC-Address\">01-0C-CD-04-00-01</P> <P type=\"APPID\">4001</P> <P type=\"VLAN-ID\">001</P> <P type=\"VLAN-PRIORITY\">3</P> </Address> </SMV> <SMV ldInst=\"ldInst1\" cbName=\"smv3\" > <Address> <P xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"tP_MAC\" type=\"MAC-Address\">01-0C-CD-04-00-02</P> <P type=\"APPID\">0002</P> </Address> </SMV> </ConnectedAP> </SubNetwork> </Communication> <IED name=\"IED\" > <Services> <ConfDataSet max=\"15\" /> <SMVsc max=\"15\" /> </Services> <AccessPoint name=\"AP1\"> <Server> <LDevice inst=\"ldInst1\"> <LN0 lnClass=\"LLN0\" inst=\"\" lnType=\"LLN0\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> </DataSet> <DataSet name=\"datSet2\"> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> </DataSet> <SampledValueControl name=\"smv1\" multicast=\"false\" smvID=\"\" securityEnabled=\"Signature\" smpMod=\"SmpPerSec\" smpRate=\"4000\" nofASDU=\"1\" /> <SampledValueControl name=\"smv3\" smvID=\"someSmvID\" desc=\"SMV with SMV\" smpMod=\"SecPerSmp\" smpRate=\"1\" nofASDU=\"1\"/> </LN0> <LN prefix=\"prefix\" lnClass=\"MMXU\" inst=\"1\" lnType=\"MMXU\" /> </LDevice> </Server> </AccessPoint> </IED> <IED name=\"IED2\" > <AccessPoint name=\"AP1\"> <Server> <LDevice inst=\"ldInst1\"> <LN0 lnClass=\"LLN0\" inst=\"\" lnType=\"LLN0\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst\" prefix=\"prefix\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> </DataSet> <SampledValueControl name=\"smv1\" smvID=\"\" securityEnabled=\"Signature\" /> <SampledValueControl name=\"smv2\" smvID=\"someSmvID\" desc=\"SMV with SMV\" datSet=\"datSet\" /> <SampledValueControl name=\"smv3\" smvID=\"someSmvID\" desc=\"SMV with SMV\" /> </LN0> <LN prefix=\"prefix\" lnClass=\"MMXU\" inst=\"1\" lnType=\"MMXU\" /> </LDevice> </Server> </AccessPoint> </IED> <DataTypeTemplates> <LNodeType lnClass=\"LLN0\" id=\"LLN0\"> <DO name=\"Beh\" type=\"ENS\"/> </LNodeType> <LNodeType lnClass=\"MMXU\" id=\"MMXU\"> <DO name=\"PhV\" type=\"WYE\"/> </LNodeType> <DOType cdc=\"ENS\" id=\"ENS\"> <DA name=\"stVal\" bType=\"Enum\" fc=\"ST\" /> <DA name=\"q\" bType=\"Quality\" fc=\"ST\" /> <DA name=\"t\" bType=\"Timestamp\" fc=\"ST\" /> <DA name=\"dc\" bType=\"VisString255\" fc=\"DC\" /> </DOType> <DOType cdc=\"WYE\" id=\"WYE\"> <SDO name=\"phsA\" type=\"CMV\" /> <SDO name=\"phsB\" type=\"CMV\" /> <SDO name=\"phsC\" type=\"CMV\" /> <SDO name=\"phRes\" type=\"CustomWYE\" /> </DOType> <DOType cdc=\"WYE\" id=\"CustomWYE\" > <SDO name=\"phsA\" type=\"CMV\" /> </DOType> <DOType cdc=\"CMV\" id=\"CMV\"> <DA name=\"cVal\" bType=\"Struct\" type=\"Vector\" fc=\"MX\"/> <DA name=\"q\" bType=\"Quality\" fc=\"MX\" /> <DA name=\"t\" bType=\"Timestamp\" fc=\"MX\" /> <DA name=\"d\" bType=\"VisibleString255\" fc=\"DC\" /> </DOType> <DAType id=\"Vector\" > <BDA name=\"mag\" bType=\"Struct\" type=\"AnalogueValue\" /> <BDA name=\"ang\" bType=\"Struct\" type=\"AnalogueValue\" /> </DAType> <DAType id=\"AnalogueValue\" > <BDA name=\"f\" bType=\"FLOAT32\" /> </DAType> </DataTypeTemplates> </SCL> `"
+        },
+        {
+          "kind": "variable",
+          "name": "smvControlDocWithDescs",
+          "default": "` <SCL xmlns=\"http://www.iec.ch/61850/2003/SCL\" version=\"2007\" revision=\"B\" release=\"4\"> <Header id=\"SMV with description\" version=\"1\" revision=\"1\" toolID=\"OpenSCD, tada!\" nameStructure=\"IEDName\"> </Header> <Communication> <SubNetwork name=\"subNet\"> <ConnectedAP iedName=\"IED\" apName=\"AP1\"> <SMV ldInst=\"ldInst1\" cbName=\"smv2\"> <Address> <P type=\"MAC-Address\">01-0C-CD-04-00-01</P> <P type=\"APPID\">4001</P> <P type=\"VLAN-ID\">001</P> <P type=\"VLAN-PRIORITY\">3</P> </Address> </SMV> <SMV ldInst=\"ldInst1\" cbName=\"smv2\"> <Address> <P xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"tP_MAC\" type=\"MAC-Address\">01-0C-CD-04-00-02</P> <P type=\"APPID\">0002</P> </Address> </SMV> </ConnectedAP> </SubNetwork> </Communication> <IED name=\"IED1\"> <AccessPoint name=\"AP1\"> <Server> <Authentication></Authentication> <LDevice inst=\"ldInst1\" desc=\"Logical Device for SV\"> <LN0 lnClass=\"LLN0\" inst=\"\" lnType=\"LLN0\" desc=\"Some things\"> <DataSet name=\"datSet\"> <FCDA ldInst=\"ldInst1\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"ldInst1\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"ldInst1\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> <FCDA ldInst=\"ldInst1\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> <FCDA ldInst=\"ldInst1\" lnClass=\"LLN0\" doName=\"Mod\" daName=\"t\" fc=\"ST\" /> <FCDA ldInst=\"ldInst1\" prefix=\"prefix\" lnInst=\"1\" lnClass=\"MMXU\" doName=\"PhV.phsA\" daName=\"cVal\" fc=\"ST\" /> </DataSet> <DOI name=\"Mod\" desc=\"IEC 61850 test mode\"></DOI> <DOI name=\"Beh\" desc=\"IEC 61850 test behaviour\"></DOI> <SampledValueControl name=\"smv2\" smvID=\"someSmvID\" desc=\"SMV with SMV\" smpMod=\"SecPerSmp\" smpRate=\"1\" nofASDU=\"1\" datSet=\"datSet\"> <SmvOpts refreshTime=\"false\" sampleSynchronized=\"true\" sampleRate=\"false\" dataSet=\"false\" security=\"false\" synchSourceId=\"true\"/> </SampledValueControl> </LN0> <LN prefix=\"prefix\" lnClass=\"MMXU\" inst=\"1\" lnType=\"MMXU\" desc=\"A measuring unit\"> <DOI name=\"PhV\" desc=\"Phase Voltages IXX terminal\"> <SDI name=\"phsA\" desc=\"Red phase\"></SDI> </DOI> </LN> </LDevice> </Server> </AccessPoint> </IED> <DataTypeTemplates> <LNodeType lnClass=\"LLN0\" id=\"LLN0\"> <DO name=\"Beh\" type=\"ENS\"/> </LNodeType> <LNodeType lnClass=\"MMXU\" id=\"MMXU\"> <DO name=\"PhV\" type=\"WYE\"/> </LNodeType> <DOType cdc=\"ENS\" id=\"ENS\"> <DA name=\"stVal\" bType=\"Enum\" fc=\"ST\" /> <DA name=\"q\" bType=\"Quality\" fc=\"ST\" /> <DA name=\"t\" bType=\"Timestamp\" fc=\"ST\" /> <DA name=\"dc\" bType=\"VisString255\" fc=\"DC\" /> </DOType> <DOType cdc=\"WYE\" id=\"WYE\"> <SDO name=\"phsA\" type=\"CMV\" /> <SDO name=\"phsB\" type=\"CMV\" /> <SDO name=\"phsC\" type=\"CMV\" /> <SDO name=\"phRes\" type=\"CustomWYE\" /> </DOType> <DOType cdc=\"WYE\" id=\"CustomWYE\"> <SDO name=\"phsA\" type=\"CMV\" /> </DOType> <DOType cdc=\"CMV\" id=\"CMV\"> <DA name=\"cVal\" bType=\"Struct\" type=\"Vector\" fc=\"MX\"/> <DA name=\"q\" bType=\"Quality\" fc=\"MX\" /> <DA name=\"t\" bType=\"Timestamp\" fc=\"MX\" /> <DA name=\"d\" bType=\"VisString255\" fc=\"DC\" /> </DOType> <DAType id=\"Vector\"> <BDA name=\"mag\" bType=\"Struct\" type=\"AnalogueValue\" /> <BDA name=\"ang\" bType=\"Struct\" type=\"AnalogueValue\" /> </DAType> <DAType id=\"AnalogueValue\"> <BDA name=\"f\" bType=\"FLOAT32\" /> </DAType> </DataTypeTemplates> </SCL> `"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "smvControlDoc",
+          "declaration": {
+            "name": "smvControlDoc",
+            "module": "src/editors/sampledvalue/smvControl.testfiles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "otherSmvControlDoc",
+          "declaration": {
+            "name": "otherSmvControlDoc",
+            "module": "src/editors/sampledvalue/smvControl.testfiles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "smvControlDocWithDescs",
+          "declaration": {
+            "name": "smvControlDocWithDescs",
+            "module": "src/editors/sampledvalue/smvControl.testfiles.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/foundation/utils/gse.spec.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/foundation/utils/gse.testfiles.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "woInstType",
+          "default": "` <GSE ldInst=\"ldInst\" cbName=\"cbName\"> <Address> <P type=\"MAC-Address\">01-0C-CD-01-00-03</P> <P type=\"APPID\">0004</P> <P type=\"VLAN-ID\">000</P> <P type=\"VLAN-PRIORITY\">4</P> </Address> <MinTime unit=\"s\" multiplier=\"m\">8</MinTime> <MaxTime unit=\"s\" multiplier=\"m\">4096</MaxTime> </GSE>`"
+        },
+        {
+          "kind": "variable",
+          "name": "withInstType",
+          "default": "` <GSE ldInst=\"ldInst\" cbName=\"cbName\"> <Address> <P xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"tP_MAC-Address\" type=\"MAC-Address\">01-0C-CD-01-00-03</P> <P xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"tP_APPID\" type=\"APPID\">0004</P> <P xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"tP_VLAN-ID\" type=\"VLAN-ID\">000</P> <P xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"tP_VLAN-PRIORITY\" type=\"VLAN-PRIORITY\">4</P> </Address> <MinTime unit=\"s\" multiplier=\"m\">8</MinTime> <MaxTime unit=\"s\" multiplier=\"m\">4096</MaxTime> </GSE>`"
+        },
+        {
+          "kind": "variable",
+          "name": "partlyInstType",
+          "default": "` <GSE ldInst=\"ldInst\" cbName=\"cbName\"> <Address> <P type=\"MAC-Address\">01-0C-CD-01-00-03</P> <P xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"tP_APPID\" type=\"APPID\">0004</P> <P type=\"VLAN-ID\">000</P> <P xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"tP_VLAN-PRIORITY\" type=\"VLAN-PRIORITY\">4</P> </Address> <MinTime unit=\"s\" multiplier=\"m\">8</MinTime> <MaxTime unit=\"s\" multiplier=\"m\">4096</MaxTime> </GSE>`"
+        },
+        {
+          "kind": "variable",
+          "name": "nulledGSE",
+          "default": "` <GSE ldInst=\"ldInst\" cbName=\"cbName\"> </GSE>`"
+        },
+        {
+          "kind": "variable",
+          "name": "orphanGSEControl",
+          "default": "` <GSEControl name=\"someGse\"> </GSEControl>`"
+        },
+        {
+          "kind": "variable",
+          "name": "simpleReferenceGSE",
+          "default": "` <SCL version=\"2007\"> <Communication> <SubNetwork name=\"someSubNet\"> <ConnectedAP iedName=\"srcIED\" apName=\"someAP\"> <GSE ldInst=\"someLDInst\" cbName=\"someGse2\" /> </ConnectedAP> </SubNetwork> </Communication> <IED name=\"srcIED\"> <AccessPoint name=\"someAP\"> <Server> <LDevice inst=\"someLDInst\"> <LN0 lnClass=\"LLN0\" inst=\"\" lnType=\"someLnType\"> <DataSet name=\"gseDatSet\"> <FCDA ldInst=\"someLDInst\" prefix=\"\" lnClass=\"LLN0\" lnInst=\"\" doName=\"Op\" daName=\"general\" fc=\"ST\" /> <FCDA ldInst=\"someLDInst\" prefix=\"\" lnClass=\"LLN0\" lnInst=\"\" doName=\"Op\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"someLDInst\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"someLDInst\" prefix=\"\" lnClass=\"LLN0\" lnInst=\"\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> </DataSet> <GSEControl name=\"someGse\" datSet=\"gseDatSet\"/> <GSEControl name=\"someGse2\" datSet=\"gseDatSet\"/> <GSEControl name=\"someGse3\" datSet=\"gseDatSet\"/> </LN0> </LDevice> </Server> </AccessPoint> </IED> </SCL>`"
+        },
+        {
+          "kind": "variable",
+          "name": "multiReferenceGSE",
+          "default": "` <SCL version=\"2007\"> <Communication> <SubNetwork name=\"someSubNet\"> <ConnectedAP iedName=\"srcIED\" apName=\"someAP\"> <GSE ldInst=\"someLDInst\" cbName=\"someGse2\"> <Address> <P type=\"MAC-Address\">01-0C-CD-01-00-00</P> <P type=\"APPID\">0000</P> <P type=\"VLAN-ID\">001</P> <P type=\"VLAN-PRIORITY\">4</P> </Address> <MinTime multiplier=\"\" </GSE> </ConnectedAP> </SubNetwork> </Communication> <IED name=\"srcIED\"> <AccessPoint name=\"someAP\"> <Server> <LDevice inst=\"someLDInst\"> <LN0 lnClass=\"LLN0\" inst=\"\" lnType=\"someLnType\"> <DataSet name=\"gseDatSet\"> <FCDA ldInst=\"someLDInst\" prefix=\"\" lnClass=\"LLN0\" lnInst=\"\" doName=\"Op\" daName=\"general\" fc=\"ST\" /> <FCDA ldInst=\"someLDInst\" prefix=\"\" lnClass=\"LLN0\" lnInst=\"\" doName=\"Op\" daName=\"q\" fc=\"ST\" /> <FCDA ldInst=\"someLDInst\" lnClass=\"LLN0\" doName=\"Beh\" daName=\"stVal\" fc=\"ST\" /> <FCDA ldInst=\"someLDInst\" prefix=\"\" lnClass=\"LLN0\" lnInst=\"\" doName=\"Beh\" daName=\"q\" fc=\"ST\" /> </DataSet> <GSEControl name=\"someGse\" datSet=\"gseDatSet\"/> <GSEControl name=\"someGse2\" datSet=\"gseDatSet\"/> <GSEControl name=\"someGse3\" datSet=\"gseDatSet\"/> </LN0> </LDevice> </Server> </AccessPoint> </IED> </SCL>`"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "woInstType",
+          "declaration": {
+            "name": "woInstType",
+            "module": "src/foundation/utils/gse.testfiles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "withInstType",
+          "declaration": {
+            "name": "withInstType",
+            "module": "src/foundation/utils/gse.testfiles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "partlyInstType",
+          "declaration": {
+            "name": "partlyInstType",
+            "module": "src/foundation/utils/gse.testfiles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "nulledGSE",
+          "declaration": {
+            "name": "nulledGSE",
+            "module": "src/foundation/utils/gse.testfiles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "orphanGSEControl",
+          "declaration": {
+            "name": "orphanGSEControl",
+            "module": "src/foundation/utils/gse.testfiles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "simpleReferenceGSE",
+          "declaration": {
+            "name": "simpleReferenceGSE",
+            "module": "src/foundation/utils/gse.testfiles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "multiReferenceGSE",
+          "declaration": {
+            "name": "multiReferenceGSE",
+            "module": "src/foundation/utils/gse.testfiles.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/foundation/utils/gse.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "referencedGSE",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "gseControl",
+              "type": {
+                "text": "Element"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "function",
+          "name": "checkGSEDiff",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "gSE",
+              "type": {
+                "text": "Element"
+              }
+            },
+            {
+              "name": "attrs",
+              "type": {
+                "text": "Record<string, string | null>"
+              }
+            },
+            {
+              "name": "instType",
+              "optional": true,
+              "type": {
+                "text": "boolean"
+              }
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "referencedGSE",
+          "declaration": {
+            "name": "referencedGSE",
+            "module": "src/foundation/utils/gse.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "checkGSEDiff",
+          "declaration": {
+            "name": "checkGSEDiff",
+            "module": "src/foundation/utils/gse.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/foundation/utils/scldata.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "isSCLTag",
+          "return": {
+            "type": {
+              "text": "tag is SCLTag"
+            }
+          },
+          "parameters": [
+            {
+              "name": "tag",
+              "type": {
+                "text": "string"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "variable",
+          "name": "relatives",
+          "type": {
+            "text": "Record<\n  SCLTag,\n  {\n    parents: SCLTag[];\n    children: SCLTag[];\n  }\n>"
+          },
+          "default": "{ AccessControl: { parents: ['LDevice'], children: [], }, AccessPoint: { parents: ['IED'], children: [ ...tNamingSequence, 'Server', 'LN', 'ServerAt', 'Services', 'GOOSESecurity', 'SMVSecurity', ], }, Address: { parents: ['ConnectedAP', 'GSE', 'SMV'], children: ['P'], }, Association: { parents: ['Server'], children: [], }, Authentication: { parents: ['Server'], children: [], }, BDA: { parents: ['DAType'], children: [...tAbstractDataAttributeSequence], }, BitRate: { parents: ['SubNetwork'], children: [], }, Bay: { parents: ['VoltageLevel'], children: [ ...tEquipmentContainerSequence, 'ConductingEquipment', 'ConnectivityNode', 'Function', ], }, ClientLN: { parents: ['RptEnabled'], children: [], }, ClientServices: { parents: ['Services'], children: ['TimeSyncProt', 'McSecurity'], }, CommProt: { parents: ['Services'], children: [], }, Communication: { parents: ['SCL'], children: [...tUnNamingSequence, 'SubNetwork'], }, ConductingEquipment: { parents: ['Process', 'Line', 'SubFunction', 'Function', 'Bay'], children: [ ...tAbstractConductingEquipmentSequence, 'EqFunction', 'SubEquipment', ], }, ConfDataSet: { parents: ['Services'], children: [], }, ConfLdName: { parents: ['Services'], children: [], }, ConfLNs: { parents: ['Services'], children: [], }, ConfLogControl: { parents: ['Services'], children: [], }, ConfReportControl: { parents: ['Services'], children: [], }, ConfSG: { parents: ['SettingGroups'], children: [], }, ConfSigRef: { parents: ['Services'], children: [], }, ConnectedAP: { parents: ['SubNetwork'], children: [...tUnNamingSequence, 'Address', 'GSE', 'SMV', 'PhysConn'], }, ConnectivityNode: { parents: ['Bay', 'Line'], children: [...tLNodeContainerSequence], }, DA: { parents: ['DOType'], children: [...tAbstractDataAttributeSequence], }, DAI: { parents: ['DOI', 'SDI'], children: [...tUnNamingSequence, 'Val'], }, DAType: { parents: ['DataTypeTemplates'], children: [...tIDNamingSequence, 'BDA', 'ProtNs'], }, DO: { parents: ['LNodeType'], children: [...tUnNamingSequence], }, DOI: { parents: [...tAnyLN], children: [...tUnNamingSequence, 'SDI', 'DAI'], }, DOType: { parents: ['DataTypeTemplates'], children: [...tIDNamingSequence, 'SDO', 'DA'], }, DataObjectDirectory: { parents: ['Services'], children: [], }, DataSet: { parents: [...tAnyLN], children: [...tNamingSequence, 'FCDA'], }, DataSetDirectory: { parents: ['Services'], children: [], }, DataTypeTemplates: { parents: ['SCL'], children: ['LNodeType', 'DOType', 'DAType', 'EnumType'], }, DynAssociation: { parents: ['Services'], children: [], }, DynDataSet: { parents: ['Services'], children: [], }, EnumType: { parents: ['DataTypeTemplates'], children: [...tIDNamingSequence, 'EnumVal'], }, EnumVal: { parents: ['EnumType'], children: [], }, EqFunction: { parents: [ 'GeneralEquipment', 'TapChanger', 'TransformerWinding', 'PowerTransformer', 'SubEquipment', 'ConductingEquipment', ], children: [...tAbstractEqFuncSubFuncSequence], }, EqSubFunction: { parents: ['EqSubFunction', 'EqFunction'], children: [...tAbstractEqFuncSubFuncSequence], }, ExtRef: { parents: ['Inputs'], children: [], }, FCDA: { parents: ['DataSet'], children: [], }, FileHandling: { parents: ['Services'], children: [], }, Function: { parents: ['Bay', 'VoltageLevel', 'Substation', 'Process', 'Line'], children: [ ...tPowerSystemResourceSequence, 'SubFunction', 'GeneralEquipment', 'ConductingEquipment', ], }, GeneralEquipment: { parents: [ 'SubFunction', 'Function', ...tGeneralEquipmentContainer, ...tAbstractEqFuncSubFunc, ...tEquipmentContainer, ], children: [...tEquipmentSequence, 'EqFunction'], }, GetCBValues: { parents: ['Services'], children: [], }, GetDataObjectDefinition: { parents: ['Services'], children: [], }, GetDataSetValue: { parents: ['Services'], children: [], }, GetDirectory: { parents: ['Services'], children: [], }, GOOSE: { parents: ['Services'], children: [], }, GOOSESecurity: { parents: ['AccessPoint'], children: [...tNamingSequence, 'Subject', 'IssuerName'], }, GSE: { parents: ['ConnectedAP'], children: [...tControlBlockSequence, 'MinTime', 'MaxTime'], }, GSEDir: { parents: ['Services'], children: [], }, GSEControl: { parents: ['LN0'], children: [...tControlWithIEDNameSequence, 'Protocol'], }, GSESettings: { parents: ['Services'], children: [], }, GSSE: { parents: ['Services'], children: [], }, Header: { parents: ['SCL'], children: ['Text', 'History'], }, History: { parents: ['Header'], children: ['Hitem'], }, Hitem: { parents: ['History'], children: [], }, IED: { parents: ['SCL'], children: [...tUnNamingSequence, 'Services', 'AccessPoint', 'KDC'], }, IEDName: { parents: ['GSEControl', 'SampledValueControl'], children: [], }, Inputs: { parents: [...tAnyLN], children: [...tUnNamingSequence, 'ExtRef'], }, IssuerName: { parents: ['GOOSESecurity', 'SMVSecurity'], children: [], }, KDC: { parents: ['IED'], children: [], }, LDevice: { parents: ['Server'], children: [...tUnNamingSequence, 'LN0', 'LN', 'AccessControl'], }, LN: { parents: ['AccessPoint', 'LDevice'], children: [...tAnyLNSequence], }, LN0: { parents: ['LDevice'], children: [ ...tAnyLNSequence, 'GSEControl', 'SampledValueControl', 'SettingControl', ], }, LNode: { parents: [...tLNodeContainer], children: [...tUnNamingSequence], }, LNodeType: { parents: ['DataTypeTemplates'], children: [...tIDNamingSequence, 'DO'], }, Line: { parents: ['Process', 'SCL'], children: [ ...tGeneralEquipmentContainerSequence, 'Voltage', 'ConductingEquipment', ], }, Log: { parents: [...tAnyLN], children: [...tUnNamingSequence], }, LogControl: { parents: [...tAnyLN], children: [...tControlWithTriggerOptSequence], }, LogSettings: { parents: ['Services'], children: [], }, MaxTime: { parents: ['GSE'], children: [], }, McSecurity: { parents: ['GSESettings', 'SMVSettings', 'ClientServices'], children: [], }, MinTime: { parents: ['GSE'], children: [], }, NeutralPoint: { parents: ['TransformerWinding'], children: [...tUnNamingSequence], }, OptFields: { parents: ['ReportControl'], children: [], }, P: { parents: ['Address', 'PhysConn'], children: [], }, PhysConn: { parents: ['ConnectedAP'], children: [...tUnNamingSequence, 'P'], }, PowerTransformer: { parents: [...tEquipmentContainer], children: [ ...tEquipmentSequence, 'TransformerWinding', 'SubEquipment', 'EqFunction', ], }, Private: { parents: [], children: [], }, Process: { parents: ['Process', 'SCL'], children: [ ...tGeneralEquipmentContainerSequence, 'ConductingEquipment', 'Substation', 'Line', 'Process', ], }, ProtNs: { parents: ['DAType', 'DA'], children: [], }, Protocol: { parents: ['GSEControl', 'SampledValueControl'], children: [], }, ReadWrite: { parents: ['Services'], children: [], }, RedProt: { parents: ['Services'], children: [], }, ReportControl: { parents: [...tAnyLN], children: [...tControlWithTriggerOptSequence, 'OptFields', 'RptEnabled'], }, ReportSettings: { parents: ['Services'], children: [], }, RptEnabled: { parents: ['ReportControl'], children: [...tUnNamingSequence, 'ClientLN'], }, SamplesPerSec: { parents: ['SMVSettings'], children: [], }, SampledValueControl: { parents: ['LN0'], children: [...tControlWithIEDNameSequence, 'SmvOpts'], }, SecPerSamples: { parents: ['SMVSettings'], children: [], }, SCL: { parents: [], children: [ ...tBaseNameSequence, 'Header', 'Substation', 'Communication', 'IED', 'DataTypeTemplates', 'Line', 'Process', ], }, SDI: { parents: ['DOI', 'SDI'], children: [...tUnNamingSequence, 'SDI', 'DAI'], }, SDO: { parents: ['DOType'], children: [...tNamingSequence], }, Server: { parents: ['AccessPoint'], children: [ ...tUnNamingSequence, 'Authentication', 'LDevice', 'Association', ], }, ServerAt: { parents: ['AccessPoint'], children: [...tUnNamingSequence], }, Services: { parents: ['IED', 'AccessPoint'], children: [ 'DynAssociation', 'SettingGroups', 'GetDirectory', 'GetDataObjectDefinition', 'DataObjectDirectory', 'GetDataSetValue', 'SetDataSetValue', 'DataSetDirectory', 'ConfDataSet', 'DynDataSet', 'ReadWrite', 'TimerActivatedControl', 'ConfReportControl', 'GetCBValues', 'ConfLogControl', 'ReportSettings', 'LogSettings', 'GSESettings', 'SMVSettings', 'GSEDir', 'GOOSE', 'GSSE', 'SMVsc', 'FileHandling', 'ConfLNs', 'ClientServices', 'ConfLdName', 'SupSubscription', 'ConfSigRef', 'ValueHandling', 'RedProt', 'TimeSyncProt', 'CommProt', ], }, SetDataSetValue: { parents: ['Services'], children: [], }, SettingControl: { parents: ['LN0'], children: [...tUnNamingSequence], }, SettingGroups: { parents: ['Services'], children: ['SGEdit', 'ConfSG'], }, SGEdit: { parents: ['SettingGroups'], children: [], }, SmpRate: { parents: ['SMVSettings'], children: [], }, SMV: { parents: ['ConnectedAP'], children: [...tControlBlockSequence], }, SmvOpts: { parents: ['SampledValueControl'], children: [], }, SMVsc: { parents: ['Services'], children: [], }, SMVSecurity: { parents: ['AccessPoint'], children: [...tNamingSequence, 'Subject', 'IssuerName'], }, SMVSettings: { parents: ['Services'], children: ['SmpRate', 'SamplesPerSec', 'SecPerSamples', 'McSecurity'], }, SubEquipment: { parents: [ 'TapChanger', 'PowerTransformer', 'ConductingEquipment', 'TransformerWinding', ...tAbstractConductingEquipment, ], children: [...tPowerSystemResourceSequence, 'EqFunction'], }, SubFunction: { parents: ['SubFunction', 'Function'], children: [ ...tPowerSystemResourceSequence, 'GeneralEquipment', 'ConductingEquipment', 'SubFunction', ], }, SubNetwork: { parents: ['Communication'], children: [...tNamingSequence, 'BitRate', 'ConnectedAP'], }, Subject: { parents: ['GOOSESecurity', 'SMVSecurity'], children: [], }, Substation: { parents: ['SCL'], children: [...tEquipmentContainerSequence, 'VoltageLevel', 'Function'], }, SupSubscription: { parents: ['Services'], children: [], }, TapChanger: { parents: ['TransformerWinding'], children: [...tPowerSystemResourceSequence, 'SubEquipment', 'EqFunction'], }, Terminal: { parents: [...tEquipment], children: [...tUnNamingSequence], }, Text: { parents: sCLTags.filter(tag => tag !== 'Text' && tag !== 'Private'), children: [], }, TimerActivatedControl: { parents: ['Services'], children: [], }, TimeSyncProt: { parents: ['Services', 'ClientServices'], children: [], }, TransformerWinding: { parents: ['PowerTransformer'], children: [ ...tAbstractConductingEquipmentSequence, 'TapChanger', 'NeutralPoint', 'EqFunction', 'SubEquipment', ], }, TrgOps: { parents: ['ReportControl'], children: [], }, Val: { parents: ['DAI', 'DA', 'BDA'], children: [], }, ValueHandling: { parents: ['Services'], children: [], }, Voltage: { parents: ['VoltageLevel'], children: [], }, VoltageLevel: { parents: ['Substation'], children: [...tEquipmentContainerSequence, 'Voltage', 'Bay', 'Function'], }, }"
+        },
+        {
+          "kind": "function",
+          "name": "getReference",
+          "return": {
+            "type": {
+              "text": "Element | null"
+            }
+          },
+          "parameters": [
+            {
+              "name": "parent",
+              "type": {
+                "text": "Element"
+              }
+            },
+            {
+              "name": "tag",
+              "type": {
+                "text": "SCLTag"
+              }
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "isSCLTag",
+          "declaration": {
+            "name": "isSCLTag",
+            "module": "src/foundation/utils/scldata.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "relatives",
+          "declaration": {
+            "name": "relatives",
+            "module": "src/foundation/utils/scldata.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "getReference",
+          "declaration": {
+            "name": "getReference",
+            "module": "src/foundation/utils/scldata.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/foundation/utils/smv.spec.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/foundation/utils/smv.testfiels.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "woInstType",
+          "default": "` <SMV ldInst=\"ldInst\" cbName=\"cbName\"> <Address> <P type=\"MAC-Address\">01-0C-CD-04-00-03</P> <P type=\"APPID\">4004</P> <P type=\"VLAN-ID\">000</P> <P type=\"VLAN-PRIORITY\">4</P> </Address> </SMV>`"
+        },
+        {
+          "kind": "variable",
+          "name": "withInstType",
+          "default": "` <SMV ldInst=\"ldInst\" cbName=\"cbName\"> <Address> <P xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"tP_MAC-Address\" type=\"MAC-Address\">01-0C-CD-04-00-03</P> <P xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"tP_APPID\" type=\"APPID\">4004</P> <P xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"tP_VLAN-ID\" type=\"VLAN-ID\">000</P> <P xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"tP_VLAN-PRIORITY\" type=\"VLAN-PRIORITY\">4</P> </Address> </SMV>`"
+        },
+        {
+          "kind": "variable",
+          "name": "partlyInstType",
+          "default": "` <SMV ldInst=\"ldInst\" cbName=\"cbName\"> <Address> <P type=\"MAC-Address\">01-0C-CD-01-00-03</P> <P xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"tP_APPID\" type=\"APPID\">0004</P> <P type=\"VLAN-ID\">000</P> <P xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"tP_VLAN-PRIORITY\" type=\"VLAN-PRIORITY\">4</P> </Address> </SMV>`"
+        },
+        {
+          "kind": "variable",
+          "name": "nulledSMV",
+          "default": "` <SMV ldInst=\"ldInst\" cbName=\"cbName\" />`"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "woInstType",
+          "declaration": {
+            "name": "woInstType",
+            "module": "src/foundation/utils/smv.testfiels.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "withInstType",
+          "declaration": {
+            "name": "withInstType",
+            "module": "src/foundation/utils/smv.testfiels.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "partlyInstType",
+          "declaration": {
+            "name": "partlyInstType",
+            "module": "src/foundation/utils/smv.testfiels.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "nulledSMV",
+          "declaration": {
+            "name": "nulledSMV",
+            "module": "src/foundation/utils/smv.testfiels.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/foundation/utils/smv.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "checkSMVDiff",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "sMV",
+              "type": {
+                "text": "Element"
+              }
+            },
+            {
+              "name": "attributes",
+              "default": "{ pTypes: {} }",
+              "type": {
+                "text": "smvAttributes"
+              }
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "checkSMVDiff",
+          "declaration": {
+            "name": "checkSMVDiff",
+            "module": "src/foundation/utils/smv.ts"
+          }
+        }
+      ]
+    }
+  ]
+}
