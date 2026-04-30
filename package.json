@@ -54,6 +54,7 @@
     "@openscd/oscd-api": "^0.1.6",
     "@openscd/scl-lib": "^2.0.0",
     "lit": "^3.3.2",
+    "sortablejs": "^1.15.7",
     "tslib": "^2.8.1"
   },
   "devDependencies": {
