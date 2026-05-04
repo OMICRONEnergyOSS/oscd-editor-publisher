@@ -61,7 +61,7 @@ describe('ReportControl element editor component', () => {
     expect(edits.length).to.equal(2);
 
     const update = edits[0];
-    expect(update.element).to.equal(reportControl);
+    expect(update.element === reportControl).to.be.true;
     expect(update.attributes).to.deep.equal({
       name: 'SomeNewName',
       desc: null,
@@ -72,7 +72,7 @@ describe('ReportControl element editor component', () => {
       intgPd: '43',
     });
 
-    expect(edits[1]).to.satisfy(isRemove);
+    expect(isRemove(edits[1])).to.be.true;
     expect(edits[1].node.tagName).to.equal('RptEnabled');
   });
 
@@ -93,7 +93,7 @@ describe('ReportControl element editor component', () => {
     editor.optFieldsSave.click();
 
     expect(editEvent).to.be.calledOnce;
-    expect(editEvent.args[0][0].detail.edit).to.satisfy(isUpdate);
+    expect(isUpdate(editEvent.args[0][0].detail.edit)).to.be.true;
 
     const update = editEvent.args[0][0].detail.edit;
     expect(update.element.tagName).to.equal('OptFields');
@@ -122,7 +122,7 @@ describe('ReportControl element editor component', () => {
     editor.trgOpsSave.click();
 
     expect(editEvent).to.be.calledOnce;
-    expect(editEvent.args[0][0].detail.edit).to.satisfy(isUpdate);
+    expect(isUpdate(editEvent.args[0][0].detail.edit)).to.be.true;
 
     const update = editEvent.args[0][0].detail.edit;
     expect(update.element.tagName).to.equal('TrgOps');
@@ -158,7 +158,7 @@ describe('ReportControl element editor component', () => {
     editor.trgOpsSave.click();
 
     expect(editEvent).to.be.calledOnce;
-    expect(editEvent.args[0][0].detail.edit).to.satisfy(isInsert);
+    expect(isInsert(editEvent.args[0][0].detail.edit)).to.be.true;
 
     const insert = editEvent.args[0][0].detail.edit;
     expect(insert.parent.tagName).to.equal('ReportControl');
@@ -190,7 +190,7 @@ describe('ReportControl element editor component', () => {
     editor.optFieldsSave.click();
 
     expect(editEvent).to.be.calledOnce;
-    expect(editEvent.args[0][0].detail.edit).to.satisfy(isInsert);
+    expect(isInsert(editEvent.args[0][0].detail.edit)).to.be.true;
 
     const insert = editEvent.args[0][0].detail.edit;
     expect(insert.parent.tagName).to.equal('ReportControl');
@@ -224,7 +224,7 @@ describe('ReportControl element editor component', () => {
     expect(editEvent).to.be.calledOnce;
 
     const { edit } = editEvent.getCall(0).args[0].detail;
-    expect(edit).to.satisfy(isInsert);
+    expect(isInsert(edit)).to.be.true;
     expect(edit.parent.tagName).to.equal('ReportControl');
     expect(edit.reference.tagName).to.equal('OptFields');
   });

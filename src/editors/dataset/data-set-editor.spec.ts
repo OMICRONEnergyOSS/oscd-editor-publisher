@@ -31,7 +31,7 @@ describe('DataSet editor component', () => {
 
     const insert = editEvent.args[0][0].detail.edit;
 
-    expect(insert).to.satisfy(isInsert);
+    expect(isInsert(insert)).to.be.true;
     expect(insert.parent.tagName).to.equal('LN0');
     expect(insert.node.tagName).to.equal('DataSet');
     expect(insert.node.getAttribute('name')).to.equal('newDataSet_001');
@@ -42,7 +42,7 @@ describe('DataSet editor component', () => {
     await sendMouse({ type: 'click', position: [760, 200] });
 
     expect(editEvent).to.have.been.calledOnce;
-    expect(editEvent.args[0][0].detail.edit[0]).to.satisfy(isRemove);
+    expect(isRemove(editEvent.args[0][0].detail.edit[0])).to.be.true;
     expect(editEvent.args[0][0].detail.edit[0].node.tagName).to.equal(
       'DataSet',
     );

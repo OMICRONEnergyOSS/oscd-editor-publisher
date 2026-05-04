@@ -66,7 +66,7 @@ describe('SampledValueControl element editor component', () => {
     expect(editEvent.args[0][0].detail.edit.length).to.equal(2);
 
     const update = editEvent.args[0][0].detail.edit[0];
-    expect(update.element).to.equal(smvControl);
+    expect(update.element === smvControl).to.be.true;
     expect(update.attributes).to.deep.equal({
       name: 'SomeNewName',
       desc: null,
@@ -116,7 +116,7 @@ describe('SampledValueControl element editor component', () => {
     editor.smvOptsSave.click();
 
     expect(editEvent).to.be.calledOnce;
-    expect(editEvent.args[0][0].detail.edit).to.satisfy(isUpdate);
+    expect(isUpdate(editEvent.args[0][0].detail.edit)).to.be.true;
     expect(editEvent.args[0][0].detail.edit.element.tagName).to.equal(
       'SmvOpts',
     );

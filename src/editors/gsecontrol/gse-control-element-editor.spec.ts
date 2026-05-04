@@ -62,7 +62,7 @@ describe('GSEControl element editor component', () => {
     expect(editEvent.args[0][0].detail.edit.length).to.equal(2);
 
     const update = editEvent.args[0][0].detail.edit[0];
-    expect(update.element).to.equal(gseControl);
+    expect(update.element === gseControl).to.be.true;
 
     expect(update.attributes).to.deep.equal({
       name: 'SomeNewName',

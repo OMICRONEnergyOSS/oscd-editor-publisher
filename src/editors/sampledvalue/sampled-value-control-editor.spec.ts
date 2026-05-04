@@ -44,7 +44,7 @@ describe('SampledValueControl editor component', () => {
     await sendMouse({ type: 'click', position: [760, 200] });
 
     expect(editEvent).to.have.been.calledOnce;
-    expect(editEvent.args[0][0].detail.edit[0]).to.satisfy(isRemove);
+    expect(isRemove(editEvent.args[0][0].detail.edit[0])).to.be.true;
     expect(editEvent.args[0][0].detail.edit[0].node.tagName).to.equal(
       'SampledValueControl',
     );
@@ -55,7 +55,7 @@ describe('SampledValueControl editor component', () => {
     editor.newDataSet.click();
 
     expect(editEvent).to.have.been.calledOnce;
-    expect(editEvent.args[0][0].detail.edit[0]).to.satisfy(isInsert);
+    expect(isInsert(editEvent.args[0][0].detail.edit[0])).to.be.true;
     expect(editEvent.args[0][0].detail.edit[0].parent.tagName).to.equal('LN0');
     expect(editEvent.args[0][0].detail.edit[0].node.tagName).to.equal(
       'DataSet',
@@ -71,7 +71,7 @@ describe('SampledValueControl editor component', () => {
     await sendMouse({ type: 'click', position: [400, 450] });
 
     expect(editEvent).to.have.been.calledOnce;
-    expect(editEvent.args[0][0].detail.edit).to.satisfy(isUpdate);
+    expect(isUpdate(editEvent.args[0][0].detail.edit)).to.be.true;
     expect(editEvent.args[0][0].detail.edit.element.tagName).to.equal(
       'SampledValueControl',
     );
