@@ -133,6 +133,7 @@ export default class PublisherPlugin extends ScopedElementsMixin(LitElement) {
       --md-list-item-activated-background: rgb(
         from var(--oscd-primary) r g b / 0.38
       );
+      font-family: var(--oscd-text-font);
     }
 
     .hidden {
@@ -142,7 +143,7 @@ export default class PublisherPlugin extends ScopedElementsMixin(LitElement) {
     .publishertypeselector {
       margin: 4px 8px 8px;
       padding: 8px;
-      background-color: var(--oscd-base00);
+      background-color: var(--oscd-base3);
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, auto));
       gap: 5px;
