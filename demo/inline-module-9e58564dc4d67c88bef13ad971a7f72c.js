@@ -2287,71 +2287,6 @@ function isEditV2(edit) {
         isRemove(edit));
 }
 
-function isNamespaced(value) {
-    return (value !== null &&
-        typeof value === 'object' &&
-        'namespaceURI' in value &&
-        typeof value.namespaceURI === 'string' &&
-        'value' in value &&
-        typeof value.value === 'string');
-}
-function isAttributes(attributes) {
-    if (attributes === null || typeof attributes !== 'object') {
-        return false;
-    }
-    return Object.entries(attributes).every(([key, value]) => typeof key === 'string' &&
-        (value === null || typeof value === 'string' || isNamespaced(value)));
-}
-function isComplexEdit(edit) {
-    return edit instanceof Array && edit.every(isEdit);
-}
-function isUpdate(edit) {
-    return (edit.element instanceof Element &&
-        isAttributes(edit.attributes));
-}
-function isEdit(edit) {
-    if (isComplexEdit(edit)) {
-        return true;
-    }
-    return isUpdate(edit) || isInsert(edit) || isRemove(edit);
-}
-
-function convertUpdate(edit) {
-    let attributes = {};
-    const attributesNS = {};
-    Object.entries(edit.attributes).forEach(([key, value]) => {
-        if (isNamespaced(value)) {
-            const ns = value.namespaceURI;
-            if (!ns) {
-                return;
-            }
-            if (!attributesNS[ns]) {
-                attributesNS[ns] = {};
-            }
-            attributesNS[ns] = { ...attributesNS[ns], [key]: value.value };
-        }
-        else {
-            attributes = { ...attributes, [key]: value };
-        }
-    });
-    return { element: edit.element, attributes, attributesNS };
-}
-function convertEdit(edit) {
-    if (isRemove(edit)) {
-        return edit;
-    }
-    if (isInsert(edit)) {
-        return edit;
-    }
-    if (isUpdate(edit)) {
-        return convertUpdate(edit);
-    }
-    if (isComplexEdit(edit)) {
-        return edit.map(convertEdit);
-    }
-    return [];
-}
-
 function handleSetTextContent({ element, textContent, }) {
     const { childNodes } = element;
     const restoreChildNodes = Array.from(childNodes).map(node => ({
@@ -7812,16 +7747,6 @@ class SaveProjectPlugin extends HTMLElement {
                 URL.revokeObjectURL(a.href);
             }, 5000);
         }
-    }
-}
-
-class OscdBackgroundEditV1 extends HTMLElement {
-    constructor() {
-        super();
-        document.addEventListener('oscd-edit', (event) => {
-            const editV2 = convertEdit(event.detail);
-            this.editor.commit(editV2);
-        });
     }
 }
 
@@ -45350,7 +45275,7 @@ DataSetElementEditor.styles = i$6 `
     .content {
       display: flex;
       flex-direction: column;
-      background-color: var(--mdc-theme-surface);
+      background-color: var(--md-sys-color-surface);
     }
 
     .content > * {
@@ -45365,8 +45290,8 @@ DataSetElementEditor.styles = i$6 `
 
     h2,
     h3 {
-      color: var(--mdc-theme-on-surface);
-      font-family: 'Roboto', sans-serif;
+      color: var(--md-sys-color-on-surface);
+      font-family: var(--oscd-text-font), sans-serif;
       font-weight: 300;
 
       margin: 0px;
@@ -45388,7 +45313,7 @@ DataSetElementEditor.styles = i$6 `
     }
 
     *[iconTrailing='search'] {
-      --mdc-shape-small: 28px;
+      --md-outlined-text-field-container-shape: 28px;
     }
 
     ::slotted(oscd-icon-button[disabled]) {
@@ -45468,14 +45393,14 @@ const styles$3 = i$6 `
   .selectionlist {
     flex: 35%;
     margin: 4px 4px 4px 8px;
-    background-color: var(--mdc-theme-surface, white);
+    background-color: var(--md-sys-color-surface, white);
     overflow-y: scroll;
   }
 
   .elementeditorcontainer {
     flex: 65%;
     margin: 4px 8px 4px 4px;
-    background-color: var(--mdc-theme-surface);
+    background-color: var(--md-sys-color-surface);
     overflow-y: scroll;
     display: flex;
     z-index: 0;
@@ -45485,11 +45410,11 @@ const styles$3 = i$6 `
     font-weight: 500;
   }
 
-  mwc-list-item.hidden[noninteractive] + li[divider] {
+  oscd-list-item.hidden[noninteractive] + oscd-divider {
     display: none;
   }
 
-  mwc-list-item.hidden[slot] + li[divider] {
+  oscd-list-item.hidden[slot] + oscd-divider {
     display: none;
   }
 
@@ -45515,8 +45440,10 @@ const styles$3 = i$6 `
       top: 110px;
       left: 8px;
       z-index: 1;
-      box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14),
-        0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2);
+      box-shadow:
+        0 8px 10px 1px rgba(0, 0, 0, 0.14),
+        0 3px 14px 2px rgba(0, 0, 0, 0.12),
+        0 5px 5px -3px rgba(0, 0, 0, 0.2);
     }
 
     .elementeditorcontainer {
@@ -47890,7 +47817,7 @@ GseControlElementEditor.styles = i$6 `
     .content {
       display: flex;
       flex-direction: column;
-      border-left: thick solid var(--mdc-theme-on-primary);
+      border-left: thick solid var(--md-sys-color-on-primary);
     }
 
     .content > * {
@@ -47904,8 +47831,8 @@ GseControlElementEditor.styles = i$6 `
 
     h2,
     h3 {
-      color: var(--mdc-theme-on-surface);
-      font-family: 'Roboto', sans-serif;
+      color: var(--md-sys-color-on-surface);
+      font-family: var(--oscd-text-font), sans-serif;
       font-weight: 300;
       margin: 4px 8px 16px;
       padding-left: 0.3em;
@@ -47921,18 +47848,18 @@ GseControlElementEditor.styles = i$6 `
 
     .insttype.label {
       margin-left: 10px;
-      font-family: var(--oscd-theme-text-font), sans-serif;
+      font-family: var(--oscd-text-font), sans-serif;
       font-weight: 300;
       color: var(--oscd-theme-base00);
     }
 
     *[iconTrailing='search'] {
-      --mdc-shape-small: 28px;
+      --md-outlined-text-field-container-shape: 28px;
     }
 
     @media (max-width: 950px) {
       .content {
-        border-left: 0px solid var(--mdc-theme-on-primary);
+        border-left: 0px solid var(--md-sys-color-on-primary);
       }
     }
   `;
@@ -48200,7 +48127,7 @@ GseControlEditor.styles = i$6 `
     .elementeditorcontainer {
       flex: 65%;
       margin: 4px 8px 4px 4px;
-      background-color: var(--mdc-theme-surface);
+      background-color: var(--md-sys-color-surface);
       overflow-y: scroll;
       display: grid;
       grid-gap: 12px;
@@ -48221,8 +48148,8 @@ GseControlEditor.styles = i$6 `
       grid-column: 2 / 4;
     }
 
-    mwc-list-item {
-      --mdc-list-item-meta-size: 48px;
+    oscd-list-item {
+      --md-list-item-trailing-space: 48px;
     }
 
     oscd-icon-button[icon='playlist_add'] {
@@ -48661,7 +48588,7 @@ ReportControlElementEditor.styles = i$6 `
     .content {
       display: flex;
       flex-direction: column;
-      border-left: thick solid var(--mdc-theme-on-primary);
+      border-left: thick solid var(--md-sys-color-on-primary);
     }
 
     .content > * {
@@ -48675,8 +48602,8 @@ ReportControlElementEditor.styles = i$6 `
 
     h2,
     h3 {
-      color: var(--mdc-theme-on-surface);
-      font-family: 'Roboto', sans-serif;
+      color: var(--md-sys-color-on-surface);
+      font-family: var(--oscd-text-font), sans-serif;
       font-weight: 300;
       margin: 4px 8px 16px;
       padding-left: 0.3em;
@@ -48691,12 +48618,12 @@ ReportControlElementEditor.styles = i$6 `
     }
 
     *[iconTrailing='search'] {
-      --mdc-shape-small: 28px;
+      --md-outlined-text-field-container-shape: 28px;
     }
 
     @media (max-width: 950px) {
       .parentcontent {
-        border-left: 0px solid var(--mdc-theme-on-primary);
+        border-left: 0px solid var(--md-sys-color-on-primary);
       }
     }
   `;
@@ -48875,7 +48802,7 @@ ReportControlEditor.styles = i$6 `
     .elementeditorcontainer {
       flex: 65%;
       margin: 4px 8px 4px 4px;
-      background-color: var(--mdc-theme-surface);
+      background-color: var(--md-sys-color-surface);
       overflow-y: scroll;
       display: grid;
       grid-gap: 12px;
@@ -48889,8 +48816,8 @@ ReportControlEditor.styles = i$6 `
       flex-direction: column;
     }
 
-    mwc-list-item {
-      --mdc-list-item-meta-size: 48px;
+    oscd-list-item {
+      --md-list-item-trailing-space: 48px;
     }
 
     oscd-icon-button[icon='playlist_add'] {
@@ -49342,7 +49269,7 @@ SampledValueControlElementEditor.styles = i$6 `
     .content {
       display: flex;
       flex-direction: column;
-      border-left: thick solid var(--mdc-theme-on-primary);
+      border-left: thick solid var(--md-sys-color-on-primary);
     }
 
     .save {
@@ -49356,8 +49283,8 @@ SampledValueControlElementEditor.styles = i$6 `
 
     h2,
     h3 {
-      color: var(--mdc-theme-on-surface);
-      font-family: 'Roboto', sans-serif;
+      color: var(--md-sys-color-on-surface);
+      font-family: var(--oscd-text-font), sans-serif;
       font-weight: 300;
       margin: 4px 8px 16px;
       padding-left: 0.3em;
@@ -49374,17 +49301,17 @@ SampledValueControlElementEditor.styles = i$6 `
     .insttype.label {
       margin-left: 10px;
       font-weight: 300;
-      font-family: var(--oscd-theme-text-font), sans-serif;
+      font-family: var(--oscd-text-font), sans-serif;
       color: var(--oscd-theme-base00);
     }
 
     *[iconTrailing='search'] {
-      --mdc-shape-small: 28px;
+      --md-outlined-text-field-container-shape: 28px;
     }
 
     @media (max-width: 950px) {
       .content {
-        border-left: 0px solid var(--mdc-theme-on-primary);
+        border-left: 0px solid var(--md-sys-color-on-primary);
       }
     }
   `;
@@ -49562,7 +49489,7 @@ SampledValueControlEditor.styles = i$6 `
     .elementeditorcontainer {
       flex: 65%;
       margin: 4px 8px 4px 4px;
-      background-color: var(--mdc-theme-surface);
+      background-color: var(--md-sys-color-surface);
       overflow-y: scroll;
       display: grid;
       grid-gap: 12px;
@@ -49576,8 +49503,8 @@ SampledValueControlEditor.styles = i$6 `
       flex-direction: column;
     }
 
-    mwc-list-item {
-      --mdc-list-item-meta-size: 48px;
+    oscd-list-item {
+      --md-list-item-trailing-space: 48px;
     }
 
     data-set-element-editor {
@@ -49701,7 +49628,12 @@ PublisherPlugin.styles = i$6 `
     * {
       --md-sys-color-primary: var(--oscd-primary);
       --md-sys-color-secondary: var(--oscd-secondary);
-      --md-sys-typescale-body-large-font: var(--oscd-theme-text-font);
+      --md-sys-typescale-body-large-font: var(--oscd-text-font);
+      --md-sys-typescale-body-medium-font: var(--oscd-text-font);
+      --md-sys-typescale-body-small-font: var(--oscd-text-font);
+      --md-sys-typescale-label-large-font: var(--oscd-text-font);
+      --md-sys-typescale-label-medium-font: var(--oscd-text-font);
+      --md-ref-typeface-plain: var(--oscd-text-font);
       --md-outlined-text-field-input-text-color: var(--oscd-base01);
 
       --md-sys-color-surface: var(--oscd-base3);
@@ -49709,7 +49641,6 @@ PublisherPlugin.styles = i$6 `
       --md-sys-color-on-primary: var(--oscd-base2);
       --md-sys-color-on-surface-variant: var(--oscd-base00);
       --md-menu-container-color: var(--oscd-base3);
-      font-family: var(--oscd-theme-text-font);
       --md-sys-color-surface-container-highest: var(--oscd-base2);
       --oscd-dialog-container-color: var(--oscd-base3);
 
@@ -49725,7 +49656,7 @@ PublisherPlugin.styles = i$6 `
     .publishertypeselector {
       margin: 4px 8px 8px;
       padding: 8px;
-      background-color: var(--oscd-theme-surface);
+      background-color: var(--oscd-base00);
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, auto));
       gap: 5px;
@@ -49760,7 +49691,6 @@ if (!registry) {
 
 registry.define('oscd-menu-open', OscdMenuOpen);
 registry.define('oscd-menu-save', SaveProjectPlugin);
-registry.define('oscd-background-editv1', OscdBackgroundEditV1);
 registry.define('oscd-editor-publisher', PublisherPlugin);
 
 const plugins = {
@@ -49795,14 +49725,7 @@ const plugins = {
       src: 'https://omicronenergyoss.github.io/oscd-editor-source/oscd-editor-source.js',
     },
   ],
-  background: [
-    {
-      name: 'EditV1 Events Listener',
-      icon: 'none',
-      requireDoc: true,
-      tagName: 'oscd-background-editv1',
-    },
-  ],
+  background: [],
 };
 
 const editor = document.querySelector('oscd-shell');

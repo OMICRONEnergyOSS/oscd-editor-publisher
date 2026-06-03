@@ -1,6 +1,5 @@
 import OscdMenuOpen from '@omicronenergy/oscd-menu-open';
 import OscdMenuSave from '@omicronenergy/oscd-menu-save';
-import OscdBackgroundEditV1 from '@omicronenergy/oscd-background-editv1';
 
 import OscdEditorPublisher from '../dist/oscd-editor-publisher.js';
 
@@ -19,7 +18,6 @@ if (!registry) {
 
 registry.define('oscd-menu-open', OscdMenuOpen);
 registry.define('oscd-menu-save', OscdMenuSave);
-registry.define('oscd-background-editv1', OscdBackgroundEditV1);
 registry.define('oscd-editor-publisher', OscdEditorPublisher);
 
 export const plugins = {
@@ -54,12 +52,5 @@ export const plugins = {
       src: 'https://omicronenergyoss.github.io/oscd-editor-source/oscd-editor-source.js',
     },
   ],
-  background: [
-    {
-      name: 'EditV1 Events Listener',
-      icon: 'none',
-      requireDoc: true,
-      tagName: 'oscd-background-editv1',
-    },
-  ],
+  background: [],
 };
