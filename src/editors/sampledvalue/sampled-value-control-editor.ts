@@ -11,7 +11,11 @@ import { OscdIconButton } from '@omicronenergy/oscd-ui/iconbutton/OscdIconButton
 import { OscdOutlinedButton } from '@omicronenergy/oscd-ui/button/OscdOutlinedButton.js';
 
 import { newEditEventV2 } from '@openscd/oscd-api/utils.js';
-import { identity, removeControlBlock } from '@openscd/scl-lib';
+import {
+  createSampledValueControl,
+  identity,
+  removeControlBlock,
+} from '@openscd/scl-lib';
 
 import { styles } from '../../foundation.js';
 import { BaseElementEditor } from '../base-element-editor.js';
@@ -52,38 +56,13 @@ export class SampledValueControlEditor extends BaseElementEditor {
   @query('data-set-element-editor')
   dataSetElementEditor!: DataSetElementEditor;
 
-  /* Resets selected SMV and its DataSet, if not existing in new doc 
-  update(props: Map<string | number | symbol, unknown>): void {
-    super.update(props);
-
-    if (props.has('doc') && this.selectCtrlBlock) {
-      const newSampledValueControl = updateElementReference(
-        this.doc,
-        this.selectCtrlBlock
-      );
-
-      this.selectCtrlBlock = newSampledValueControl ?? undefined;
-      this.selectedDataSet = this.selectCtrlBlock
-        ? updateElementReference(this.doc, this.selectedDataSet!)
-        : undefined;
-
-      // TODO(JakobVogelsang): add activeable to ActionList
-      /* if (
-        !newSampledValueControl &&
-        this.selectionList &&
-        this.selectionList.selected
-      )
-        (this.selectionList.selected as ListItem).selected = false; 
-    }
-  } */
-
   private renderElementEditorContainer(): TemplateResult {
-    if (this.selectCtrlBlock !== undefined) {
+    if (this.selectedControlBlock !== undefined) {
       return html`<div class="elementeditorcontainer">
         ${this.renderDataSetElementContainer()}
         <sampled-value-control-element-editor
           .doc=${this.doc}
-          .element=${this.selectCtrlBlock}
+          .element=${this.selectedControlBlock}
           .docVersion=${this.docVersion}
         ></sampled-value-control-element-editor>
       </div>`;
@@ -106,13 +85,30 @@ export class SampledValueControlEditor extends BaseElementEditor {
           startingIcon: 'developer_board',
           divider: true,
           filtergroup: smvControls.map(smvControl => `${identity(smvControl)}`),
+          actions: [
+            {
+              icon: 'playlist_add',
+              callback: () => {
+                const sampledValueControlActions =
+                  createSampledValueControl(ied);
+
+                if (sampledValueControlActions.length) {
+                  this.dispatchEvent(
+                    newEditEventV2(sampledValueControlActions, {
+                      title: 'Create New SampledValueControl',
+                    }),
+                  );
+                }
+              },
+            },
+          ],
         };
 
         const sampledValues: ActionItem[] = smvControls.map(smvControl => ({
           headline: `${smvControl.getAttribute('name')}`,
           supportingText: `${smvControlPath(smvControl)}`,
           primaryAction: () => {
-            if (this.selectCtrlBlock === smvControl) {
+            if (this.selectedControlBlock === smvControl) {
               return;
             }
 
@@ -124,12 +120,7 @@ export class SampledValueControlEditor extends BaseElementEditor {
               this.dataSetElementEditor.resetInputs();
             }
 
-            this.selectCtrlBlock = smvControl;
-            this.selectedDataSet =
-              smvControl.parentElement?.querySelector(
-                `DataSet[name="${smvControl.getAttribute('datSet')}"]`,
-              ) ?? null;
-
+            this.selectControlBlock(smvControl);
             this.selectionList.classList.add('hidden');
             this.selectSampledValueControlButton.classList.remove('hidden');
           },
@@ -143,7 +134,7 @@ export class SampledValueControlEditor extends BaseElementEditor {
                   }),
                 );
 
-                this.selectCtrlBlock = undefined;
+                this.clearSelectedControlBlock();
               },
             },
           ],

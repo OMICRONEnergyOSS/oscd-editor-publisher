@@ -11,6 +11,30 @@ import { GseControlEditor } from './editors/gsecontrol/gse-control-editor.js';
 import { ReportControlEditor } from './editors/report/report-control-editor.js';
 import { SampledValueControlEditor } from './editors/sampledvalue/sampled-value-control-editor.js';
 
+export const PUBLISHER_TYPE_LOCAL_STORAGE_KEY =
+  'oscd-editor-publisher__publisher-type';
+
+type PublisherType = 'Report' | 'GOOSE' | 'SampledValue' | 'DataSet';
+
+const DEFAULT_PUBLISHER_TYPE: PublisherType = 'GOOSE';
+
+const publisherTypes: PublisherType[] = [
+  'Report',
+  'GOOSE',
+  'SampledValue',
+  'DataSet',
+];
+
+function isPublisherType(value: string | null): value is PublisherType {
+  return publisherTypes.includes(value as PublisherType);
+}
+
+function storedPublisherType(): PublisherType {
+  const value = localStorage.getItem(PUBLISHER_TYPE_LOCAL_STORAGE_KEY);
+
+  return isPublisherType(value) ? value : DEFAULT_PUBLISHER_TYPE;
+}
+
 /** An editor [[`plugin`]] to configure `Report`, `GOOSE`, `SampledValue` control blocks and its `DataSet` */
 export default class PublisherPlugin extends ScopedElementsMixin(LitElement) {
   static scopedElements = {
@@ -30,8 +54,12 @@ export default class PublisherPlugin extends ScopedElementsMixin(LitElement) {
   docVersion?: unknown;
 
   @state()
-  private publisherType: 'Report' | 'GOOSE' | 'SampledValue' | 'DataSet' =
-    'GOOSE';
+  private publisherType: PublisherType = storedPublisherType();
+
+  private selectPublisherType(publisherType: PublisherType): void {
+    this.publisherType = publisherType;
+    localStorage.setItem(PUBLISHER_TYPE_LOCAL_STORAGE_KEY, publisherType);
+  }
 
   render() {
     return html`<form class="publishertypeselector">
@@ -41,7 +69,7 @@ export default class PublisherPlugin extends ScopedElementsMixin(LitElement) {
             value="report"
             ?checked=${this.publisherType === 'Report'}
             @change=${() => {
-              this.publisherType = 'Report';
+              this.selectPublisherType('Report');
             }}
           ></oscd-radio>
           <label for="report-radio">Report</label>
@@ -52,7 +80,7 @@ export default class PublisherPlugin extends ScopedElementsMixin(LitElement) {
             value="goose"
             ?checked=${this.publisherType === 'GOOSE'}
             @change=${() => {
-              this.publisherType = 'GOOSE';
+              this.selectPublisherType('GOOSE');
             }}
           ></oscd-radio>
           <label for="goose-radio">GOOSE</label>
@@ -63,7 +91,7 @@ export default class PublisherPlugin extends ScopedElementsMixin(LitElement) {
             value="smv"
             ?checked=${this.publisherType === 'SampledValue'}
             @change=${() => {
-              this.publisherType = 'SampledValue';
+              this.selectPublisherType('SampledValue');
             }}
           ></oscd-radio>
           <label for="smv-radio">SampledValue</label>
@@ -74,7 +102,7 @@ export default class PublisherPlugin extends ScopedElementsMixin(LitElement) {
             value="ds"
             ?checked=${this.publisherType === 'DataSet'}
             @change=${() => {
-              this.publisherType = 'DataSet';
+              this.selectPublisherType('DataSet');
             }}
           ></oscd-radio>
           <label for="ds-radio">DataSet</label>

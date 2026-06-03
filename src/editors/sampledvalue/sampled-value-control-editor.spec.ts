@@ -44,6 +44,23 @@ describe('SampledValueControl editor component', () => {
     window.addEventListener('oscd-edit-v2', editEvent);
   });
 
+  it('allows to insert new SampledValueControl element', async () => {
+    await sendMouse({ type: 'click', position: [760, 100] });
+
+    expect(editEvent).to.have.been.calledOnce;
+    expect(editEvent.args[0][0].detail.edit).to.have.length(2);
+    expect(isInsert(editEvent.args[0][0].detail.edit[0])).to.be.true;
+    expect(editEvent.args[0][0].detail.edit[0].parent.tagName).to.equal('LN0');
+    expect(editEvent.args[0][0].detail.edit[0].node.tagName).to.equal(
+      'SampledValueControl',
+    );
+    expect(isInsert(editEvent.args[0][0].detail.edit[1])).to.be.true;
+    expect(editEvent.args[0][0].detail.edit[1].parent.tagName).to.equal(
+      'ConnectedAP',
+    );
+    expect(editEvent.args[0][0].detail.edit[1].node.tagName).to.equal('SMV');
+  });
+
   it('allows to remove and existing SampledValueControl element', async () => {
     await sendMouse({ type: 'click', position: [760, 200] });
 

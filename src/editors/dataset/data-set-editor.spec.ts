@@ -14,11 +14,18 @@ window.customElements.define('data-set-editor', DataSetEditor);
 
 const doc = new DOMParser().parseFromString(dataSetDoc, 'application/xml');
 
+type DataSetEditorWithSelection = DataSetEditor & {
+  selectedDataSet?: Element;
+};
+
 describe('DataSet editor component', () => {
+  let editor: DataSetEditor;
   let editEvent: SinonSpy;
 
   beforeEach(async () => {
-    await fixture(html`<data-set-editor .doc="${doc}"></data-set-editor>`);
+    editor = await fixture(
+      html`<data-set-editor .doc="${doc}"></data-set-editor>`,
+    );
 
     editEvent = spy();
     window.addEventListener('oscd-edit-v2', editEvent);
@@ -46,5 +53,23 @@ describe('DataSet editor component', () => {
     expect(editEvent.args[0][0].detail.edit[0].node.tagName).to.equal(
       'DataSet',
     );
+  });
+
+  it('clears selected DataSet details when the document changes', async () => {
+    (editor as DataSetEditorWithSelection).selectedDataSet =
+      editor.doc.querySelector('DataSet')!;
+    await editor.updateComplete;
+
+    expect(editor.shadowRoot!.querySelector('data-set-element-editor')).to
+      .exist;
+
+    editor.doc = new DOMParser().parseFromString(
+      '<SCL></SCL>',
+      'application/xml',
+    );
+    await editor.updateComplete;
+
+    expect(editor.shadowRoot!.querySelector('data-set-element-editor')).to.not
+      .exist;
   });
 });

@@ -41,34 +41,13 @@ export class GseControlEditor extends BaseElementEditor {
   @query('data-set-element-editor')
   dataSetElementEditor!: DataSetElementEditor;
 
-  /* Resets selected GOOSE and its DataSet, if not existing in new doc 
-  update(props: Map<string | number | symbol, unknown>): void {
-    super.update(props);
-
-    if (props.has('doc') && this.selectCtrlBlock) {
-      const newGseControl = updateElementReference(
-        this.doc,
-        this.selectCtrlBlock
-      );
-
-      this.selectCtrlBlock = newGseControl ?? undefined;
-      this.selectedDataSet = this.selectCtrlBlock
-        ? updateElementReference(this.doc, this.selectedDataSet!)
-        : undefined;
-
-      /* TODO(Jakob Vogelsang): comment when action-list is activeable
-      if (!newGseControl && this.selectionList && this.selectionList.selected)
-        (this.selectionList.selected as ListItem).selected = false; 
-    }
-  } */
-
   protected renderElementEditorContainer(): TemplateResult {
-    if (this.selectCtrlBlock !== undefined) {
+    if (this.selectedControlBlock !== undefined) {
       return html`<div class="elementeditorcontainer">
         ${this.renderDataSetElementContainer()}
         <gse-control-element-editor
           .doc=${this.doc}
-          .element=${this.selectCtrlBlock}
+          .element=${this.selectedControlBlock}
           .docVersion=${this.docVersion}
         ></gse-control-element-editor>
       </div>`;
@@ -114,7 +93,7 @@ export class GseControlEditor extends BaseElementEditor {
           headline: `${gseControl.getAttribute('name')}`,
           supportingText: `${pathIdentity(gseControl)}`,
           primaryAction: () => {
-            if (this.selectCtrlBlock === gseControl) {
+            if (this.selectedControlBlock === gseControl) {
               return;
             }
 
@@ -126,12 +105,7 @@ export class GseControlEditor extends BaseElementEditor {
               this.dataSetElementEditor.resetInputs();
             }
 
-            this.selectCtrlBlock = gseControl;
-            this.selectedDataSet =
-              gseControl.parentElement?.querySelector(
-                `DataSet[name="${gseControl.getAttribute('datSet')}"]`,
-              ) ?? null;
-
+            this.selectControlBlock(gseControl);
             this.selectionList.classList.add('hidden');
             this.selectGSEControlButton.classList.remove('hidden');
           },
@@ -145,7 +119,7 @@ export class GseControlEditor extends BaseElementEditor {
                   }),
                 );
 
-                this.selectCtrlBlock = undefined;
+                this.clearSelectedControlBlock();
               },
             },
           ],

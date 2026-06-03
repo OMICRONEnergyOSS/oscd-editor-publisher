@@ -23,10 +23,10 @@ export class BaseElementEditor extends ScopedElementsMixin(LitElement) {
   docVersion?: unknown;
 
   @state()
-  selectCtrlBlock?: Element;
+  protected selectedControlBlock?: Element;
 
   @state()
-  selectedDataSet?: Element | null;
+  protected selectedDataSet?: Element | null;
 
   @query('.dialog.select') selectDataSetDialog!: OscdDialog;
 
@@ -34,19 +34,42 @@ export class BaseElementEditor extends ScopedElementsMixin(LitElement) {
 
   @query('.change.dataset') changeDataSet!: OscdIconButton;
 
+  protected update(props: Map<string | number | symbol, unknown>): void {
+    if (props.has('doc')) {
+      this.clearSelectedControlBlock();
+    }
+
+    super.update(props);
+  }
+
+  protected selectControlBlock(controlBlock: Element): void {
+    this.selectedControlBlock = controlBlock;
+    this.selectedDataSet =
+      controlBlock.parentElement?.querySelector(
+        `:scope > DataSet[name="${controlBlock.getAttribute('datSet')}"]`,
+      ) ?? null;
+  }
+
+  protected clearSelectedControlBlock(): void {
+    this.selectedControlBlock = undefined;
+    this.selectedDataSet = undefined;
+  }
+
   protected selectDataSet(dataSet: Element): void {
     const name = dataSet.getAttribute('name');
-    if (!name || !this.selectCtrlBlock) {
+    if (!name || !this.selectedControlBlock) {
       return;
     }
 
     this.dispatchEvent(
       newEditEventV2(
         {
-          element: this.selectCtrlBlock,
+          element: this.selectedControlBlock,
           attributes: { datSet: name },
         },
-        { title: `Change Data Set of ${identity(this.selectCtrlBlock)}` },
+        {
+          title: `Change Data Set of ${identity(this.selectedControlBlock)}`,
+        },
       ),
     );
     this.selectedDataSet = dataSet;
@@ -76,9 +99,12 @@ export class BaseElementEditor extends ScopedElementsMixin(LitElement) {
       newEditEventV2([insert, update], { title: 'Add New Data Set' }),
     );
 
-    this.selectedDataSet = this.selectCtrlBlock?.parentElement?.querySelector(
-      `:scope > DataSet[name="${this.selectCtrlBlock.getAttribute('datSet')}"]`,
-    );
+    this.selectedDataSet =
+      this.selectedControlBlock?.parentElement?.querySelector(
+        `:scope > DataSet[name="${this.selectedControlBlock.getAttribute(
+          'datSet',
+        )}"]`,
+      );
   }
 
   private showSelectDataSetDialog(): void {
@@ -87,7 +113,7 @@ export class BaseElementEditor extends ScopedElementsMixin(LitElement) {
 
   protected renderSelectDataSetDialog(): TemplateResult {
     const items = Array.from(
-      this.selectCtrlBlock?.parentElement?.querySelectorAll(
+      this.selectedControlBlock?.parentElement?.querySelectorAll(
         ':scope > DataSet',
       ) ?? [],
     ).map(dataSet => ({
@@ -119,17 +145,18 @@ export class BaseElementEditor extends ScopedElementsMixin(LitElement) {
           <oscd-icon-button
             class="change dataset"
             slot="change"
-            ?disabled=${!!findControlBlockSubscription(this.selectCtrlBlock!)
-              .length}
+            ?disabled=${!!findControlBlockSubscription(
+              this.selectedControlBlock!,
+            ).length}
             @click=${this.showSelectDataSetDialog}
             ><oscd-icon>swap_vert</oscd-icon></oscd-icon-button
           >
           <oscd-icon-button
             class="new dataset"
             slot="new"
-            ?disabled=${!!this.selectCtrlBlock!.getAttribute('datSet')}
+            ?disabled=${!!this.selectedControlBlock!.getAttribute('datSet')}
             @click="${() => {
-              this.addNewDataSet(this.selectCtrlBlock!);
+              this.addNewDataSet(this.selectedControlBlock!);
             }}"
             ><oscd-icon>playlist_add</oscd-icon></oscd-icon-button
           ></data-set-element-editor

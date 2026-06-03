@@ -48,6 +48,12 @@
     </SubNetwork>
   </Communication>
   <IED name="PUB_A" manufacturer="OpenSCD">
+    <Services>
+      <ConfDataSet max="16" maxAttributes="64"/>
+      <ConfReportControl max="16" maxBuf="16"/>
+      <GOOSE max="16"/>
+      <SMVsc max="16"/>
+    </Services>
     <AccessPoint name="AP1">
       <Server>
         <Authentication/>
@@ -58,6 +64,11 @@
               <FCDA ldInst="LD_A" prefix="" lnClass="TCTR" lnInst="1" doName="Beh" daName="q" fc="ST"/>
             </DataSet>
             <GSEControl name="GCB_A" type="GOOSE" appID="0001" confRev="1" datSet="DS_A"/>
+            <ReportControl name="RCB_A" buffered="true" datSet="DS_A" confRev="1" rptID="PUB_A/LD_A/RCB_A" indexed="true" bufTime="100" intgPd="1000">
+              <TrgOps dchg="true" qchg="true" dupd="true" period="true" gi="true"/>
+              <OptFields seqNum="true" timeStamp="true" dataSet="true" reasonCode="true" dataRef="true" entryID="true" configRef="true" bufOvfl="true"/>
+              <RptEnabled max="4"/>
+            </ReportControl>
           </LN0>
           <LN lnClass="TCTR" inst="1" lnType="TCTR_Test">
             <DOI name="Beh">
@@ -73,6 +84,13 @@
     </AccessPoint>
   </IED>
   <IED name="PUB_B" manufacturer="OpenSCD">
+    <Services>
+      <!-- deliberately left empty to test default values -->
+      <!-- <ConfDataSet max="16" maxAttributes="64"/> -->
+      <!-- <ConfReportControl max="16" maxBuf="16"/> -->
+      <!-- <GOOSE max="16"/> -->
+      <!-- <SMVsc max="16"/> -->
+    </Services>
     <AccessPoint name="AP1">
       <Server>
         <Authentication/>
@@ -98,6 +116,12 @@
     </AccessPoint>
   </IED>
   <IED name="SMV_PUB" manufacturer="OpenSCD">
+    <Services>
+      <ConfDataSet max="16" maxAttributes="64"/>
+      <ConfReportControl max="16" maxBuf="16"/>
+      <GOOSE max="16"/>
+      <SMVsc max="16"/>
+    </Services>
     <AccessPoint name="AP1">
       <Server>
         <Authentication/>
@@ -124,6 +148,12 @@
     </AccessPoint>
   </IED>
   <IED name="SUB_A" manufacturer="OpenSCD">
+    <Services>
+      <ConfDataSet max="16" maxAttributes="64"/>
+      <ConfReportControl max="16" maxBuf="16"/>
+      <GOOSE max="16"/>
+      <SMVsc max="16"/>
+    </Services>
     <AccessPoint name="AP1">
       <Server>
         <Authentication/>
@@ -204,6 +234,12 @@
     </AccessPoint>
   </IED>
   <IED name="SUB_B" manufacturer="OpenSCD">
+    <Services>
+      <ConfDataSet max="16" maxAttributes="64"/>
+      <ConfReportControl max="16" maxBuf="16"/>
+      <GOOSE max="16"/>
+      <SMVsc max="16"/>
+    </Services>
     <AccessPoint name="AP1">
       <Server>
         <Authentication/>
