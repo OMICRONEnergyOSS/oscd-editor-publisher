@@ -1,6 +1,6 @@
 {
   "name": "@omicronenergy/oscd-editor-publisher",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "OpenSCD Editor Plugin for working with IEC 61850 SCL files.",
   "type": "module",
   "repository": {
