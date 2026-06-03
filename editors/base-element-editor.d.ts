@@ -7,11 +7,14 @@ export declare class BaseElementEditor extends BaseElementEditor_base {
     doc: XMLDocument;
     /** SCL change indicator */
     docVersion?: unknown;
-    selectCtrlBlock?: Element;
-    selectedDataSet?: Element | null;
+    protected selectedControlBlock?: Element;
+    protected selectedDataSet?: Element | null;
     selectDataSetDialog: OscdDialog;
     newDataSet: OscdIconButton;
     changeDataSet: OscdIconButton;
+    protected update(props: Map<string | number | symbol, unknown>): void;
+    protected selectControlBlock(controlBlock: Element): void;
+    protected clearSelectedControlBlock(): void;
     protected selectDataSet(dataSet: Element): void;
     private addNewDataSet;
     private showSelectDataSetDialog;

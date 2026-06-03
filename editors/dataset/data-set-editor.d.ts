@@ -17,6 +17,7 @@ export declare class DataSetEditor extends DataSetEditor_base {
     selectionList: OscdActionList;
     selectDataSetButton: OscdOutlinedButton;
     dataSetElementEditor: DataSetElementEditor;
+    protected update(props: Map<string | number | symbol, unknown>): void;
     private renderElementEditorContainer;
     private renderSelectionList;
     private renderToggleButton;

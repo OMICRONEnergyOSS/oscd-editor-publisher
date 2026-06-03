@@ -10199,7 +10199,7 @@ function convertToMac(mac) {
 const gseMacRange = Array(maxGseMacAddress - minGseMacAddress)
     .fill(1)
     .map((_, i) => convertToMac(minGseMacAddress + i));
-Array(maxSmvMacAddress - minSmvMacAddress)
+const smvMacRange = Array(maxSmvMacAddress - minSmvMacAddress)
     .fill(1)
     .map((_, i) => convertToMac(minSmvMacAddress + i));
 /** Generator function returning `MAC-Address` within `doc`. Defined once it can
@@ -10217,7 +10217,7 @@ Array(maxSmvMacAddress - minSmvMacAddress)
  */
 function macAddressGenerator(doc, serviceType) {
     const macs = new Set(Array.from(doc.querySelectorAll(`${serviceType} > Address > P[type="MAC-Address"]`)).map((mac) => mac.textContent));
-    const range = gseMacRange;
+    const range = serviceType === "SMV" ? smvMacRange : gseMacRange;
     return () => {
         const uniqueMAC = range.find((mac) => !macs.has(mac));
         if (uniqueMAC)
@@ -10239,7 +10239,7 @@ const gseAppIdRange = Array(maxGseAppId - minGseAppId)
 const gseTripAppIdRange = Array(maxGseTripAppId - minGseTripAppId)
     .fill(1)
     .map((_, i) => (minGseTripAppId + i).toString(16).toUpperCase().padStart(4, "0"));
-Array(maxSmvAppId - minSmvAppId)
+const smvAppIdRange = Array(maxSmvAppId - minSmvAppId)
     .fill(1)
     .map((_, i) => (minSmvAppId + i).toString(16).toUpperCase().padStart(4, "0"));
 /** Generator function returning unique `APPID` within `doc`. Defined once it
@@ -10266,7 +10266,9 @@ function appIdGenerator(doc, serviceType, type1A = false) {
     const appIds = new Set(Array.from(doc.querySelectorAll(`${serviceType} > Address > P[type="APPID"]`)).map((appId) => appId.textContent));
     const range = 
     // eslint-disable-next-line no-nested-ternary
-    type1A
+    serviceType === "SMV"
+        ? smvAppIdRange
+        : type1A
             ? gseTripAppIdRange
             : gseAppIdRange;
     return () => {
@@ -10542,6 +10544,128 @@ function changeGSEContent(element, options) {
         ? changeGseTiming(element, options.timing)
         : [];
     return addressEdits.concat(timeEdits);
+}
+
+/** @returns Edit inserting new `SMV` to [[`parent`]] ConnectedAP element */
+function createSMV(parent, attributes, options = {}) {
+    if (parent.tagName !== "ConnectedAP")
+        return null;
+    const doc = parent.ownerDocument;
+    const gSE = createElement$1(doc, "SMV", attributes);
+    const address = createElement$1(doc, "Address", {});
+    gSE.appendChild(address);
+    const pTypes = {};
+    pTypes["MAC-Address"] = options.mac ?? macAddressGenerator(doc, "SMV")();
+    pTypes.APPID = options.appId ?? appIdGenerator(doc, "SMV")();
+    pTypes["VLAN-ID"] = options.vlanId ?? "000";
+    pTypes["VLAN-PRIORITY"] = options.vlanPriority ?? "4";
+    Object.entries(pTypes)
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        .filter(([_, value]) => value !== undefined)
+        .forEach(([type, value]) => {
+        const child = createElement$1(doc, "P", { type });
+        child.textContent = value;
+        address.appendChild(child);
+    });
+    return {
+        parent,
+        node: gSE,
+        reference: getReference(parent, "SMV"),
+    };
+}
+
+function maxSampledValueControl(parent) {
+    {
+        const selector = `:scope > Services > SMVsc`;
+        const apSMV = parent.closest("AccessPoint")?.querySelector(selector);
+        if (apSMV)
+            return {
+                max: parseInt(apSMV.getAttribute("max") ?? "0", 10),
+                scope: "AccessPoint",
+            };
+        const iedSMV = parent.closest("IED")?.querySelector(selector);
+        return {
+            max: parseInt(iedSMV?.getAttribute("max") ?? "0", 10),
+            scope: "IED",
+        };
+    }
+}
+/** Checks Services>SMVsc AccessPoint or on IED if the first is not present
+ * @param parent - parent `LN0`
+ * @returns Whether new `SampledValueControl` is exceeding SMVsc.max attribute */
+function canAddSampledValueControl(ln0) {
+    const { max, scope } = maxSampledValueControl(ln0);
+    const existingSampledValueControls = Array.from(ln0
+        .closest(scope)
+        ?.querySelectorAll(":scope Server > LDevice > LN0 > SampledValueControl") ?? []).length;
+    return max > existingSampledValueControls;
+}
+
+function invalidSampledValueControl(ln0, name, datSet) {
+    const uniqueName = name
+        ? !ln0.querySelector(`:scope > SampledValueControl[name="${name}"]`)
+        : true;
+    const validDataSet = datSet
+        ? !!ln0.querySelector(`:scope > DataSet[name="${datSet}"]`)
+        : true;
+    return !(uniqueName && validDataSet && canAddSampledValueControl(ln0));
+}
+/** Utility function to create schema valid `SampledValueControl` and `SMV` elements
+ * @parent Parent element such as `LN0`, `LDevice`, `AccessPoint` and `IED`
+ * @options Configuration for SampledValueControl/SMV element
+ * @returns Edit inserting new `SampledValueControl` to [[`parent`]] element and when possible
+ *          `SMV` to connected `ConnectedAP`
+ * */
+function createSampledValueControl(parent, options = {
+    smvControl: {},
+    smv: {},
+}) {
+    const ln0 = parent.tagName === "LN0" ? parent : parent.querySelector("LN0");
+    if (!ln0)
+        return [];
+    const name = options.smvControl?.name;
+    const datSet = options.smvControl?.datSet;
+    if (!options.skipCheck && invalidSampledValueControl(ln0, name, datSet))
+        return [];
+    const attributes = { ...options.smvControl };
+    const cbName = name ? name : uniqueElementName(ln0, "SampledValueControl");
+    if (!options.smvControl?.name)
+        attributes.name = cbName;
+    if (!options.smvControl?.multicast)
+        attributes.multicast = "true";
+    if (!options.smvControl?.smpRate)
+        attributes.smpRate = "80";
+    if (!options.smvControl?.nofASDU)
+        attributes.nofASDU = "1";
+    if (!options.smvControl?.smpMod)
+        attributes.smpMod = "SmpPerPeriod";
+    if (!options.smvControl?.smvID)
+        attributes.smvID = pathId(ln0, cbName);
+    const generatedConfRev = options.smvControl?.datSet ? "1" : "0";
+    const userConfRev = options.smvControl?.confRev;
+    attributes.confRev = userConfRev ? userConfRev : generatedConfRev;
+    const smvControl = createElement$1(ln0.ownerDocument, "SampledValueControl", attributes);
+    const smvOpts = createElement$1(ln0.ownerDocument, "SmvOpts", options.smvOpts ?? {});
+    smvControl.appendChild(smvOpts);
+    const edits = [];
+    edits.push({
+        parent: ln0,
+        node: smvControl,
+        reference: getReference(ln0, "SampledValueControl"),
+    });
+    const connAp = connectedAp(ln0, options.smv?.apName);
+    if (!connAp)
+        return edits;
+    const ldInst = ln0.closest("LDevice").getAttribute("inst");
+    if (!ldInst || !cbName)
+        return edits;
+    const smvCreateOptions = options.smv ?? {};
+    delete smvCreateOptions.apName;
+    const smvAttrs = { ldInst, cbName };
+    const smvEdit = createSMV(connAp, smvAttrs, smvCreateOptions);
+    if (smvEdit)
+        edits.push(smvEdit);
+    return edits;
 }
 
 /**
@@ -37714,20 +37838,12 @@ const styles$3 = i$6 `
 `;
 
 class DataSetEditor extends ScopedElementsMixin(i$3) {
-    /* Resets selected DataSet, if not existing in new doc
-    update(props: Map<string | number | symbol, unknown>): void {
-      if (props.has('doc') && this.selectedDataSet) {
-        const newDataSet = updateElementReference(this.doc, this.selectedDataSet);
-  
-        this.selectedDataSet = newDataSet ?? undefined;
-  
-        /* TODO(Jakob Vogelsang): fix when action-list is activable
-        if (!newDataSet && this.selectionList && this.selectionList.selected)
-          (this.selectionList.selected as ListItem).selected = false;
-      }
-  
-      super.update(props);
-    } */
+    update(props) {
+        if (props.has('doc')) {
+            this.selectedDataSet = undefined;
+        }
+        super.update(props);
+    }
     renderElementEditorContainer() {
         if (this.selectedDataSet) {
             return b `<div class="elementeditorcontainer">
@@ -40143,15 +40259,32 @@ __decorate([
 ], GseControlElementEditor.prototype, "instType", void 0);
 
 class BaseElementEditor extends ScopedElementsMixin(i$3) {
+    update(props) {
+        if (props.has('doc')) {
+            this.clearSelectedControlBlock();
+        }
+        super.update(props);
+    }
+    selectControlBlock(controlBlock) {
+        this.selectedControlBlock = controlBlock;
+        this.selectedDataSet =
+            controlBlock.parentElement?.querySelector(`:scope > DataSet[name="${controlBlock.getAttribute('datSet')}"]`) ?? null;
+    }
+    clearSelectedControlBlock() {
+        this.selectedControlBlock = undefined;
+        this.selectedDataSet = undefined;
+    }
     selectDataSet(dataSet) {
         const name = dataSet.getAttribute('name');
-        if (!name || !this.selectCtrlBlock) {
+        if (!name || !this.selectedControlBlock) {
             return;
         }
         this.dispatchEvent(newEditEventV2({
-            element: this.selectCtrlBlock,
+            element: this.selectedControlBlock,
             attributes: { datSet: name },
-        }, { title: `Change Data Set of ${identity(this.selectCtrlBlock)}` }));
+        }, {
+            title: `Change Data Set of ${identity(this.selectedControlBlock)}`,
+        }));
         this.selectedDataSet = dataSet;
         this.selectDataSetDialog.close();
     }
@@ -40170,13 +40303,14 @@ class BaseElementEditor extends ScopedElementsMixin(i$3) {
         }
         const update = { element: control, attributes: { datSet: newName } };
         this.dispatchEvent(newEditEventV2([insert, update], { title: 'Add New Data Set' }));
-        this.selectedDataSet = this.selectCtrlBlock?.parentElement?.querySelector(`:scope > DataSet[name="${this.selectCtrlBlock.getAttribute('datSet')}"]`);
+        this.selectedDataSet =
+            this.selectedControlBlock?.parentElement?.querySelector(`:scope > DataSet[name="${this.selectedControlBlock.getAttribute('datSet')}"]`);
     }
     showSelectDataSetDialog() {
         this.selectDataSetDialog.show();
     }
     renderSelectDataSetDialog() {
-        const items = Array.from(this.selectCtrlBlock?.parentElement?.querySelectorAll(':scope > DataSet') ?? []).map(dataSet => ({
+        const items = Array.from(this.selectedControlBlock?.parentElement?.querySelectorAll(':scope > DataSet') ?? []).map(dataSet => ({
             headline: `${dataSet.getAttribute('name')}`,
             supportingText: `${identity(dataSet)}`,
             primaryAction: () => {
@@ -40203,17 +40337,16 @@ class BaseElementEditor extends ScopedElementsMixin(i$3) {
           <oscd-icon-button
             class="change dataset"
             slot="change"
-            ?disabled=${!!findControlBlockSubscription(this.selectCtrlBlock)
-            .length}
+            ?disabled=${!!findControlBlockSubscription(this.selectedControlBlock).length}
             @click=${this.showSelectDataSetDialog}
             ><oscd-icon>swap_vert</oscd-icon></oscd-icon-button
           >
           <oscd-icon-button
             class="new dataset"
             slot="new"
-            ?disabled=${!!this.selectCtrlBlock.getAttribute('datSet')}
+            ?disabled=${!!this.selectedControlBlock.getAttribute('datSet')}
             @click="${() => {
-            this.addNewDataSet(this.selectCtrlBlock);
+            this.addNewDataSet(this.selectedControlBlock);
         }}"
             ><oscd-icon>playlist_add</oscd-icon></oscd-icon-button
           ></data-set-element-editor
@@ -40230,7 +40363,7 @@ __decorate([
 ], BaseElementEditor.prototype, "docVersion", void 0);
 __decorate([
     r$3()
-], BaseElementEditor.prototype, "selectCtrlBlock", void 0);
+], BaseElementEditor.prototype, "selectedControlBlock", void 0);
 __decorate([
     r$3()
 ], BaseElementEditor.prototype, "selectedDataSet", void 0);
@@ -40245,33 +40378,13 @@ __decorate([
 ], BaseElementEditor.prototype, "changeDataSet", void 0);
 
 class GseControlEditor extends BaseElementEditor {
-    /* Resets selected GOOSE and its DataSet, if not existing in new doc
-    update(props: Map<string | number | symbol, unknown>): void {
-      super.update(props);
-  
-      if (props.has('doc') && this.selectCtrlBlock) {
-        const newGseControl = updateElementReference(
-          this.doc,
-          this.selectCtrlBlock
-        );
-  
-        this.selectCtrlBlock = newGseControl ?? undefined;
-        this.selectedDataSet = this.selectCtrlBlock
-          ? updateElementReference(this.doc, this.selectedDataSet!)
-          : undefined;
-  
-        /* TODO(Jakob Vogelsang): comment when action-list is activeable
-        if (!newGseControl && this.selectionList && this.selectionList.selected)
-          (this.selectionList.selected as ListItem).selected = false;
-      }
-    } */
     renderElementEditorContainer() {
-        if (this.selectCtrlBlock !== undefined) {
+        if (this.selectedControlBlock !== undefined) {
             return b `<div class="elementeditorcontainer">
         ${this.renderDataSetElementContainer()}
         <gse-control-element-editor
           .doc=${this.doc}
-          .element=${this.selectCtrlBlock}
+          .element=${this.selectedControlBlock}
           .docVersion=${this.docVersion}
         ></gse-control-element-editor>
       </div>`;
@@ -40304,7 +40417,7 @@ class GseControlEditor extends BaseElementEditor {
                 headline: `${gseControl.getAttribute('name')}`,
                 supportingText: `${pathIdentity(gseControl)}`,
                 primaryAction: () => {
-                    if (this.selectCtrlBlock === gseControl) {
+                    if (this.selectedControlBlock === gseControl) {
                         return;
                     }
                     if (this.gseControlElementEditor) {
@@ -40313,9 +40426,7 @@ class GseControlEditor extends BaseElementEditor {
                     if (this.dataSetElementEditor) {
                         this.dataSetElementEditor.resetInputs();
                     }
-                    this.selectCtrlBlock = gseControl;
-                    this.selectedDataSet =
-                        gseControl.parentElement?.querySelector(`DataSet[name="${gseControl.getAttribute('datSet')}"]`) ?? null;
+                    this.selectControlBlock(gseControl);
                     this.selectionList.classList.add('hidden');
                     this.selectGSEControlButton.classList.remove('hidden');
                 },
@@ -40326,7 +40437,7 @@ class GseControlEditor extends BaseElementEditor {
                             this.dispatchEvent(newEditEventV2(removeControlBlock({ node: gseControl }), {
                                 title: 'Remove GSEControl',
                             }));
-                            this.selectCtrlBlock = undefined;
+                            this.clearSelectedControlBlock();
                         },
                     },
                 ],
@@ -40916,104 +41027,332 @@ __decorate([
 ], ReportControlElementEditor.prototype, "rptEnabledInput", void 0);
 
 class ReportControlEditor extends BaseElementEditor {
-    /* Resets selected Report and its DataSet, if not existing in new doc
-    update(props: Map<string | number | symbol, unknown>): void {
-      super.update(props);
-  
-      if (props.has('doc') && this.selectCtrlBlock) {
-        const newReportControl = updateElementReference(
-          this.doc,
-          this.selectCtrlBlock
-        );
-  
-        this.selectCtrlBlock = newReportControl ?? undefined;
-        this.selectedDataSet = this.selectCtrlBlock
-          ? updateElementReference(this.doc, this.selectedDataSet!)
-          : undefined;
-  
-        /* TODO(Jakob Vogelsang): fix when action-list is activable
-        if (
-          !newReportControl &&
-          this.selectionList &&
-          this.selectionList.selected
-        )
-          (this.selectionList.selected as ListItem).selected = false;
-      }
-    } */
+    constructor() {
+        super(...arguments);
+        this.reportFilter = '';
+        this.selectedClientLnIds = [];
+        this.initialClientLnIds = [];
+    }
+    get reportClientLNs() {
+        return Array.from(this.doc.querySelectorAll(':root > IED > AccessPoint > LN, :root > IED > AccessPoint > Server > LDevice > LN, :root > IED > AccessPoint > Server > LDevice > LN0'));
+    }
     renderElementEditorContainer() {
-        if (this.selectCtrlBlock !== undefined) {
+        if (this.selectedControlBlock !== undefined) {
             return b `<div class="elementeditorcontainer">
         ${this.renderDataSetElementContainer()}
         <report-control-element-editor
           .doc=${this.doc}
-          .element=${this.selectCtrlBlock}
+          .element=${this.selectedControlBlock}
           .docVersion=${this.docVersion}
         ></report-control-element-editor>
       </div>`;
         }
         return b ``;
     }
-    renderSelectionList() {
-        const items = Array.from(this.doc.querySelectorAll(':root > IED')).flatMap(ied => {
-            const rpControls = Array.from(ied.querySelectorAll(':scope > AccessPoint > Server > LDevice > LN0 > ReportControl, :scope > AccessPoint > Server > LDevice > LN > ReportControl'));
-            const item = {
-                headline: `${ied.getAttribute('name')}`,
-                startingIcon: 'developer_board',
-                divider: true,
-                filtergroup: rpControls.map(rpControl => `${identity(rpControl)}`),
-                actions: [
-                    {
-                        icon: 'playlist_add',
-                        callback: () => {
-                            const insertGseControl = createReportControl(ied);
-                            if (insertGseControl) {
-                                this.dispatchEvent(newEditEventV2(insertGseControl, {
-                                    title: 'Create New ReportControl',
-                                }));
-                            }
-                        },
-                    },
-                ],
-            };
-            const reports = rpControls.map(rpControl => ({
-                headline: `${rpControl.getAttribute('name')}`,
-                supportingText: `${pathIdentity(rpControl)}`,
-                primaryAction: () => {
-                    if (this.selectCtrlBlock === rpControl) {
-                        return;
-                    }
-                    if (this.rpControlElementEditor) {
-                        this.rpControlElementEditor.resetInputs();
-                    }
-                    if (this.dataSetElementEditor) {
-                        this.dataSetElementEditor.resetInputs();
-                    }
-                    this.selectCtrlBlock = rpControl;
-                    this.selectedDataSet =
-                        rpControl.parentElement?.querySelector(`:scope > DataSet[name="${rpControl.getAttribute('datSet')}"]`) ?? null;
-                    this.selectionList.classList.add('hidden');
-                    this.selectReportControlButton.classList.remove('hidden');
-                },
-                actions: [
-                    {
-                        icon: 'delete',
-                        callback: () => {
-                            this.dispatchEvent(newEditEventV2(removeControlBlock({ node: rpControl }), {
-                                title: `Remove ReportControl ${rpControl}`,
-                            }));
-                            this.selectCtrlBlock = undefined;
-                        },
-                    },
-                ],
+    createReportControl(ied) {
+        const insertReportControl = createReportControl(ied);
+        if (insertReportControl) {
+            this.dispatchEvent(newEditEventV2(insertReportControl, {
+                title: 'Create New ReportControl',
             }));
-            return [item, ...reports];
+        }
+    }
+    canCreateReportControl(ied) {
+        return createReportControl(ied) !== null;
+    }
+    selectReportControl(reportControl) {
+        if (this.selectedControlBlock === reportControl) {
+            return;
+        }
+        if (this.rpControlElementEditor) {
+            this.rpControlElementEditor.resetInputs();
+        }
+        if (this.dataSetElementEditor) {
+            this.dataSetElementEditor.resetInputs();
+        }
+        this.selectControlBlock(reportControl);
+        this.selectionList.classList.add('hidden');
+        this.selectReportControlButton.classList.remove('hidden');
+    }
+    removeReportControl(reportControl) {
+        this.dispatchEvent(newEditEventV2(removeControlBlock({ node: reportControl }), {
+            title: `Remove ReportControl ${identity(reportControl)}`,
+        }));
+        if (this.selectedControlBlock === reportControl) {
+            this.clearSelectedControlBlock();
+        }
+    }
+    openClientLnAssignmentDialog(reportControl) {
+        this.clientLnAssignmentReport = reportControl;
+        this.selectedClientLnIds = this.assignedClientLogicalNodes(reportControl).map(logicalNode => this.clientLnId(logicalNode));
+        this.initialClientLnIds = [...this.selectedClientLnIds];
+        this.clientLnAssignmentDialog.show();
+    }
+    showReportActionsMenu(event) {
+        event.stopPropagation();
+        const button = event.currentTarget;
+        const menu = button.nextElementSibling;
+        menu.anchorElement = button;
+        menu.show();
+    }
+    clientLnId(logicalNode) {
+        const ied = logicalNode.closest('IED');
+        const accessPoint = logicalNode.closest('AccessPoint');
+        const lDevice = logicalNode.closest('LDevice');
+        return [
+            ied?.getAttribute('name') ?? '',
+            accessPoint?.getAttribute('name') ?? '',
+            lDevice?.getAttribute('inst') ?? '',
+            logicalNode.getAttribute('prefix') ?? '',
+            logicalNode.getAttribute('lnClass') ?? '',
+            logicalNode.getAttribute('inst') ?? '',
+        ].join('|');
+    }
+    hasClientLn(reportControl, logicalNode) {
+        const [iedName, apRef, ldInst, prefix, lnClass, lnInst] = this.clientLnId(logicalNode).split('|');
+        return Array.from(reportControl.querySelectorAll(':scope > RptEnabled > ClientLN')).some(clientLn => (clientLn.getAttribute('iedName') ?? '') === iedName &&
+            (clientLn.getAttribute('apRef') ?? '') === apRef &&
+            (clientLn.getAttribute('ldInst') ?? '') === ldInst &&
+            (clientLn.getAttribute('prefix') ?? '') === prefix &&
+            (clientLn.getAttribute('lnClass') ?? '') === lnClass &&
+            (clientLn.getAttribute('lnInst') ?? '') === lnInst);
+    }
+    clientLnForLogicalNode(reportControl, logicalNode) {
+        const [iedName, apRef, ldInst, prefix, lnClass, lnInst] = this.clientLnId(logicalNode).split('|');
+        return Array.from(reportControl.querySelectorAll(':scope > RptEnabled > ClientLN')).find(clientLn => (clientLn.getAttribute('iedName') ?? '') === iedName &&
+            (clientLn.getAttribute('apRef') ?? '') === apRef &&
+            (clientLn.getAttribute('ldInst') ?? '') === ldInst &&
+            (clientLn.getAttribute('prefix') ?? '') === prefix &&
+            (clientLn.getAttribute('lnClass') ?? '') === lnClass &&
+            (clientLn.getAttribute('lnInst') ?? '') === lnInst);
+    }
+    assignedClientLogicalNodes(reportControl) {
+        return this.reportClientLNs.filter(logicalNode => this.hasClientLn(reportControl, logicalNode));
+    }
+    clientLnInsert(reportControl, logicalNode, parent) {
+        return {
+            parent,
+            node: createElement$1(reportControl.ownerDocument, 'ClientLN', {
+                iedName: logicalNode.closest('IED')?.getAttribute('name') ?? null,
+                apRef: logicalNode.closest('AccessPoint')?.getAttribute('name') ?? null,
+                ldInst: logicalNode.closest('LDevice')?.getAttribute('inst') ?? 'LD0',
+                prefix: logicalNode.getAttribute('prefix') ?? '',
+                lnClass: logicalNode.getAttribute('lnClass') ?? '',
+                lnInst: logicalNode.getAttribute('inst') ?? '',
+            }),
+            reference: null,
+        };
+    }
+    updateSelectedClientLns() {
+        const reportControl = this.clientLnAssignmentReport;
+        if (!reportControl) {
+            return;
+        }
+        const selectedIds = new Set(this.selectedClientLnIds);
+        const initialIds = new Set(this.initialClientLnIds);
+        const logicalNodesById = new Map(this.reportClientLNs.map(logicalNode => [this.clientLnId(logicalNode), logicalNode]));
+        let rptEnabled = reportControl.querySelector(':scope > RptEnabled');
+        const edits = [];
+        const clientLnsToAdd = this.selectedClientLnIds
+            .filter(id => !initialIds.has(id))
+            .map(id => logicalNodesById.get(id))
+            .filter((logicalNode) => !!logicalNode);
+        const clientLnsToRemove = this.initialClientLnIds
+            .filter(id => !selectedIds.has(id))
+            .map(id => logicalNodesById.get(id))
+            .filter((logicalNode) => !!logicalNode)
+            .map(logicalNode => this.clientLnForLogicalNode(reportControl, logicalNode))
+            .filter((clientLn) => !!clientLn);
+        if (!rptEnabled && clientLnsToAdd.length) {
+            rptEnabled = createElement$1(reportControl.ownerDocument, 'RptEnabled', {
+                max: `${Math.max(1, clientLnsToAdd.length)}`,
+            });
+            edits.push({
+                parent: reportControl,
+                node: rptEnabled,
+                reference: getReference(reportControl, 'RptEnabled'),
+            });
+        }
+        clientLnsToAdd.forEach(logicalNode => {
+            if (!this.hasClientLn(reportControl, logicalNode)) {
+                edits.push(this.clientLnInsert(reportControl, logicalNode, rptEnabled));
+            }
         });
-        return b `<oscd-action-list
-      class="selectionlist"
-      filterable
-      searchhelper="Filter ReportControl's"
-      .items=${items}
-    ></oscd-action-list>`;
+        clientLnsToRemove.forEach(clientLn => {
+            edits.push({ node: clientLn });
+        });
+        if (edits.length > 0) {
+            this.dispatchEvent(newEditEventV2(edits, {
+                title: `Update Client LNs of ReportControl ${identity(reportControl)}`,
+            }));
+        }
+        this.clientLnAssignmentDialog.close();
+        this.clientLnAssignmentReport = undefined;
+        this.selectedClientLnIds = [];
+        this.initialClientLnIds = [];
+    }
+    toggleClientLnSelection(logicalNode, selected) {
+        const id = this.clientLnId(logicalNode);
+        const selectedIds = new Set(this.selectedClientLnIds);
+        if (selected) {
+            selectedIds.add(id);
+        }
+        else {
+            selectedIds.delete(id);
+        }
+        this.selectedClientLnIds = [...selectedIds];
+    }
+    matchesReportFilter(ied, reports) {
+        const filter = this.reportFilter.trim().toLowerCase();
+        if (!filter) {
+            return true;
+        }
+        return [
+            ied.getAttribute('name') ?? '',
+            ...reports.flatMap(reportControl => [
+                reportControl.getAttribute('name') ?? '',
+                identity(reportControl).toString(),
+                pathIdentity(reportControl),
+            ]),
+        ].some(term => term.toLowerCase().includes(filter));
+    }
+    renderClientLnAssignmentDialog() {
+        const reportControl = this.clientLnAssignmentReport;
+        const selectedIds = new Set(this.selectedClientLnIds);
+        const rptEnabled = reportControl?.querySelector(':scope > RptEnabled');
+        const maxClients = parseInt(rptEnabled?.getAttribute('max') ?? '1', 10);
+        const clientLimit = Number.isNaN(maxClients) ? 1 : maxClients;
+        const selectedClientCount = selectedIds.size;
+        const clientLimitReached = selectedClientCount >= clientLimit;
+        const hasClientLnChanges = this.selectedClientLnIds.some(id => !this.initialClientLnIds.includes(id)) ||
+            this.initialClientLnIds.some(id => !this.selectedClientLnIds.includes(id));
+        return b `<oscd-dialog class="client-ln assignment dialog">
+      <div slot="headline">Edit Clients</div>
+      <div slot="content" class="client-ln-list">
+        <div class="client-ln-count">
+          ${selectedClientCount}/${clientLimit} clients
+        </div>
+        ${this.reportClientLNs.map(logicalNode => {
+            const id = this.clientLnId(logicalNode);
+            const selected = selectedIds.has(id);
+            const disabled = clientLimitReached && !selected;
+            return b `<label class="client-ln-option">
+            <oscd-checkbox
+              ?checked=${selected}
+              ?disabled=${disabled}
+              @change=${(event) => {
+                const checkbox = event.target;
+                this.toggleClientLnSelection(logicalNode, checkbox.checked);
+            }}
+            ></oscd-checkbox>
+            <span>
+              <span class="client-ln-name"
+                >${this.logicalNodeName(logicalNode)}</span
+              >
+              <span class="client-ln-path">${identity(logicalNode)}</span>
+            </span>
+          </label>`;
+        })}
+      </div>
+      <div slot="actions">
+        <oscd-text-button
+          @click=${() => {
+            this.clientLnAssignmentDialog.close();
+            this.clientLnAssignmentReport = undefined;
+            this.selectedClientLnIds = [];
+            this.initialClientLnIds = [];
+        }}
+          >Cancel</oscd-text-button
+        >
+        <oscd-text-button
+          ?disabled=${!hasClientLnChanges}
+          @click=${() => this.updateSelectedClientLns()}
+          >Apply</oscd-text-button
+        >
+      </div>
+    </oscd-dialog>`;
+    }
+    logicalNodeName(logicalNode) {
+        return `${logicalNode.getAttribute('prefix') ?? ''}${logicalNode.getAttribute('lnClass')}${logicalNode.getAttribute('inst') ?? ''}`;
+    }
+    renderReportListItem(reportControl) {
+        return b `<oscd-list-item
+      class="report-list-item"
+      type="button"
+      @click=${() => this.selectReportControl(reportControl)}
+    >
+      <div slot="headline">${reportControl.getAttribute('name')}</div>
+      <div slot="supporting-text">${pathIdentity(reportControl)}</div>
+      <oscd-icon-button
+        slot="end"
+        class="report-actions-button"
+        @click=${this.showReportActionsMenu}
+        ><oscd-icon>more_vert</oscd-icon></oscd-icon-button
+      >
+      <oscd-menu positioning="fixed">
+        <oscd-menu-item
+          @click=${(event) => {
+            event.stopPropagation();
+            this.openClientLnAssignmentDialog(reportControl);
+        }}
+        >
+          <div slot="headline">Edit Clients</div>
+          <oscd-icon slot="start">lan</oscd-icon>
+        </oscd-menu-item>
+        <oscd-menu-item
+          @click=${(event) => {
+            event.stopPropagation();
+            this.removeReportControl(reportControl);
+        }}
+        >
+          <div slot="headline">Delete</div>
+          <oscd-icon slot="start">delete</oscd-icon>
+        </oscd-menu-item>
+      </oscd-menu>
+    </oscd-list-item>`;
+    }
+    renderSelectionList() {
+        return b `<div class="selectionlist report-selectionlist">
+      <oscd-outlined-text-field
+        class="report-filter"
+        placeholder="Filter ReportControl's"
+        iconTrailing="search"
+        .value=${this.reportFilter}
+        @input=${(event) => {
+            this.reportFilter = event.target.value;
+        }}
+      ></oscd-outlined-text-field>
+      <oscd-list>
+        ${Array.from(this.doc.querySelectorAll(':root > IED')).map(ied => {
+            const canCreateReportControl = this.canCreateReportControl(ied);
+            const rpControls = Array.from(ied.querySelectorAll(':scope > AccessPoint > Server > LDevice > LN0 > ReportControl, :scope > AccessPoint > Server > LDevice > LN > ReportControl'));
+            if (!this.matchesReportFilter(ied, rpControls)) {
+                return b ``;
+            }
+            return b `<oscd-list-item class="ied-list-item">
+              <div slot="headline">${ied.getAttribute('name')}</div>
+              <oscd-icon slot="start">developer_board</oscd-icon>
+              <oscd-icon-button
+                class="create-report-control"
+                slot="end"
+                ?disabled=${!canCreateReportControl}
+                @click=${(event) => {
+                event.stopPropagation();
+                if (!canCreateReportControl) {
+                    return;
+                }
+                this.createReportControl(ied);
+            }}
+                ><oscd-icon>playlist_add</oscd-icon></oscd-icon-button
+              >
+            </oscd-list-item>
+            ${rpControls
+                .filter(reportControl => this.matchesReportFilter(ied, [reportControl]))
+                .map(reportControl => this.renderReportListItem(reportControl))}`;
+        })}
+      </oscd-list>
+      ${this.renderClientLnAssignmentDialog()}
+    </div>`;
     }
     renderToggleButton() {
         return b `<oscd-outlined-button
@@ -41037,8 +41376,15 @@ class ReportControlEditor extends BaseElementEditor {
 }
 ReportControlEditor.scopedElements = {
     'oscd-action-list': OscdActionList,
+    'oscd-checkbox': OscdCheckbox,
     'data-set-element-editor': DataSetElementEditor,
+    'oscd-list': OscdList,
+    'oscd-list-item': OscdListItem,
+    'oscd-menu': OscdMenu,
+    'oscd-menu-item': OscdMenuItem,
     'oscd-outlined-button': OscdOutlinedButton,
+    'oscd-outlined-text-field': OscdOutlinedTextField,
+    'oscd-text-button': OscdTextButton,
     'report-control-element-editor': ReportControlElementEditor,
     'oscd-icon-button': OscdIconButton,
     'oscd-icon': OscdIcon,
@@ -41068,8 +41414,68 @@ ReportControlEditor.styles = i$6 `
       --md-list-item-trailing-space: 48px;
     }
 
-    oscd-icon-button[icon='playlist_add'] {
+    oscd-icon-button.create-report-control,
+    oscd-icon-button.report-actions-button {
+      width: 48px;
+      height: 48px;
       pointer-events: all;
+    }
+
+    .report-filter {
+      box-sizing: border-box;
+      padding: 8px;
+      width: 100%;
+      --md-outlined-text-field-container-shape: 32px;
+    }
+
+    .report-actions {
+      position: relative;
+      display: flex;
+      align-items: center;
+      min-width: 48px;
+    }
+
+    .report-list-item {
+      --md-list-item-trailing-space: 48px;
+    }
+
+    .report-selectionlist {
+      position: relative;
+      z-index: 1;
+    }
+
+    oscd-menu {
+      z-index: 20;
+    }
+
+    .client-ln-list {
+      display: flex;
+      flex-direction: column;
+      min-width: min(640px, 80vw);
+      max-height: min(520px, 60vh);
+      overflow: auto;
+    }
+
+    .client-ln-option {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 12px;
+      align-items: center;
+      padding: 8px 0;
+      font-family: var(--oscd-text-font), sans-serif;
+    }
+
+    .client-ln-name,
+    .client-ln-path {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .client-ln-path {
+      color: var(--md-sys-color-on-surface-variant);
+      font-size: 0.875rem;
     }
 
     data-set-element-editor {
@@ -41087,8 +41493,23 @@ ReportControlEditor.styles = i$6 `
     }
   `;
 __decorate([
+    r$3()
+], ReportControlEditor.prototype, "clientLnAssignmentReport", void 0);
+__decorate([
+    r$3()
+], ReportControlEditor.prototype, "reportFilter", void 0);
+__decorate([
+    r$3()
+], ReportControlEditor.prototype, "selectedClientLnIds", void 0);
+__decorate([
+    r$3()
+], ReportControlEditor.prototype, "initialClientLnIds", void 0);
+__decorate([
     e$3('.selectionlist')
 ], ReportControlEditor.prototype, "selectionList", void 0);
+__decorate([
+    e$3('.client-ln.assignment.dialog')
+], ReportControlEditor.prototype, "clientLnAssignmentDialog", void 0);
 __decorate([
     e$3('.change.scl.element')
 ], ReportControlEditor.prototype, "selectReportControlButton", void 0);
@@ -41616,37 +42037,13 @@ function smvControlPath(smvControl) {
     return paths.join('>');
 }
 class SampledValueControlEditor extends BaseElementEditor {
-    /* Resets selected SMV and its DataSet, if not existing in new doc
-    update(props: Map<string | number | symbol, unknown>): void {
-      super.update(props);
-  
-      if (props.has('doc') && this.selectCtrlBlock) {
-        const newSampledValueControl = updateElementReference(
-          this.doc,
-          this.selectCtrlBlock
-        );
-  
-        this.selectCtrlBlock = newSampledValueControl ?? undefined;
-        this.selectedDataSet = this.selectCtrlBlock
-          ? updateElementReference(this.doc, this.selectedDataSet!)
-          : undefined;
-  
-        // TODO(JakobVogelsang): add activeable to ActionList
-        /* if (
-          !newSampledValueControl &&
-          this.selectionList &&
-          this.selectionList.selected
-        )
-          (this.selectionList.selected as ListItem).selected = false;
-      }
-    } */
     renderElementEditorContainer() {
-        if (this.selectCtrlBlock !== undefined) {
+        if (this.selectedControlBlock !== undefined) {
             return b `<div class="elementeditorcontainer">
         ${this.renderDataSetElementContainer()}
         <sampled-value-control-element-editor
           .doc=${this.doc}
-          .element=${this.selectCtrlBlock}
+          .element=${this.selectedControlBlock}
           .docVersion=${this.docVersion}
         ></sampled-value-control-element-editor>
       </div>`;
@@ -41661,12 +42058,25 @@ class SampledValueControlEditor extends BaseElementEditor {
                 startingIcon: 'developer_board',
                 divider: true,
                 filtergroup: smvControls.map(smvControl => `${identity(smvControl)}`),
+                actions: [
+                    {
+                        icon: 'playlist_add',
+                        callback: () => {
+                            const sampledValueControlActions = createSampledValueControl(ied);
+                            if (sampledValueControlActions.length) {
+                                this.dispatchEvent(newEditEventV2(sampledValueControlActions, {
+                                    title: 'Create New SampledValueControl',
+                                }));
+                            }
+                        },
+                    },
+                ],
             };
             const sampledValues = smvControls.map(smvControl => ({
                 headline: `${smvControl.getAttribute('name')}`,
                 supportingText: `${smvControlPath(smvControl)}`,
                 primaryAction: () => {
-                    if (this.selectCtrlBlock === smvControl) {
+                    if (this.selectedControlBlock === smvControl) {
                         return;
                     }
                     if (this.elementContainer) {
@@ -41675,9 +42085,7 @@ class SampledValueControlEditor extends BaseElementEditor {
                     if (this.dataSetElementEditor) {
                         this.dataSetElementEditor.resetInputs();
                     }
-                    this.selectCtrlBlock = smvControl;
-                    this.selectedDataSet =
-                        smvControl.parentElement?.querySelector(`DataSet[name="${smvControl.getAttribute('datSet')}"]`) ?? null;
+                    this.selectControlBlock(smvControl);
                     this.selectionList.classList.add('hidden');
                     this.selectSampledValueControlButton.classList.remove('hidden');
                 },
@@ -41688,7 +42096,7 @@ class SampledValueControlEditor extends BaseElementEditor {
                             this.dispatchEvent(newEditEventV2(removeControlBlock({ node: smvControl }), {
                                 title: `Remove SampledValueControl`,
                             }));
-                            this.selectCtrlBlock = undefined;
+                            this.clearSelectedControlBlock();
                         },
                     },
                 ],
@@ -41782,11 +42190,30 @@ __decorate([
     e$3('data-set-element-editor')
 ], SampledValueControlEditor.prototype, "dataSetElementEditor", void 0);
 
+const PUBLISHER_TYPE_LOCAL_STORAGE_KEY = 'oscd-editor-publisher__publisher-type';
+const DEFAULT_PUBLISHER_TYPE = 'GOOSE';
+const publisherTypes = [
+    'Report',
+    'GOOSE',
+    'SampledValue',
+    'DataSet',
+];
+function isPublisherType(value) {
+    return publisherTypes.includes(value);
+}
+function storedPublisherType() {
+    const value = localStorage.getItem(PUBLISHER_TYPE_LOCAL_STORAGE_KEY);
+    return isPublisherType(value) ? value : DEFAULT_PUBLISHER_TYPE;
+}
 /** An editor [[`plugin`]] to configure `Report`, `GOOSE`, `SampledValue` control blocks and its `DataSet` */
 class PublisherPlugin extends ScopedElementsMixin(i$3) {
     constructor() {
         super(...arguments);
-        this.publisherType = 'GOOSE';
+        this.publisherType = storedPublisherType();
+    }
+    selectPublisherType(publisherType) {
+        this.publisherType = publisherType;
+        localStorage.setItem(PUBLISHER_TYPE_LOCAL_STORAGE_KEY, publisherType);
     }
     render() {
         return b `<form class="publishertypeselector">
@@ -41796,7 +42223,7 @@ class PublisherPlugin extends ScopedElementsMixin(i$3) {
             value="report"
             ?checked=${this.publisherType === 'Report'}
             @change=${() => {
-            this.publisherType = 'Report';
+            this.selectPublisherType('Report');
         }}
           ></oscd-radio>
           <label for="report-radio">Report</label>
@@ -41807,7 +42234,7 @@ class PublisherPlugin extends ScopedElementsMixin(i$3) {
             value="goose"
             ?checked=${this.publisherType === 'GOOSE'}
             @change=${() => {
-            this.publisherType = 'GOOSE';
+            this.selectPublisherType('GOOSE');
         }}
           ></oscd-radio>
           <label for="goose-radio">GOOSE</label>
@@ -41818,7 +42245,7 @@ class PublisherPlugin extends ScopedElementsMixin(i$3) {
             value="smv"
             ?checked=${this.publisherType === 'SampledValue'}
             @change=${() => {
-            this.publisherType = 'SampledValue';
+            this.selectPublisherType('SampledValue');
         }}
           ></oscd-radio>
           <label for="smv-radio">SampledValue</label>
@@ -41829,7 +42256,7 @@ class PublisherPlugin extends ScopedElementsMixin(i$3) {
             value="ds"
             ?checked=${this.publisherType === 'DataSet'}
             @change=${() => {
-            this.publisherType = 'DataSet';
+            this.selectPublisherType('DataSet');
         }}
           ></oscd-radio>
           <label for="ds-radio">DataSet</label>
@@ -41925,5 +42352,5 @@ __decorate([
     r$3()
 ], PublisherPlugin.prototype, "publisherType", void 0);
 
-export { PublisherPlugin as default };
+export { PUBLISHER_TYPE_LOCAL_STORAGE_KEY, PublisherPlugin as default };
 //# sourceMappingURL=oscd-editor-publisher.js.map
