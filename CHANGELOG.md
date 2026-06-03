@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.2](https://github.com/OMICRONEnergyOSS/oscd-editor-publisher/compare/oscd-editor-publisher-v0.0.1...oscd-editor-publisher-v0.0.2) (2026-06-03)
+
+
+### Features
+
+* add support for editing ClientLNs on Reports ([af46f49](https://github.com/OMICRONEnergyOSS/oscd-editor-publisher/commit/af46f49eb0442744774de52c5cadbb0cf19e2465))
+
 ## 0.0.1 (2026-06-03)
 
 
