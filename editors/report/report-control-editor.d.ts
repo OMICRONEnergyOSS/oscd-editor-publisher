@@ -14,6 +14,7 @@ import { OscdTextButton } from '@omicronenergy/oscd-ui/button/OscdTextButton.js'
 import { DataSetElementEditor } from '../dataset/data-set-element-editor.js';
 import { ReportControlElementEditor } from './report-control-element-editor.js';
 import { BaseElementEditor } from '../base-element-editor.js';
+import { OscdFilledButton } from '@omicronenergy/oscd-ui/button/OscdFilledButton.js';
 export declare class ReportControlEditor extends BaseElementEditor {
     static scopedElements: {
         'oscd-action-list': typeof OscdActionList;
@@ -26,6 +27,7 @@ export declare class ReportControlEditor extends BaseElementEditor {
         'oscd-outlined-button': typeof OscdOutlinedButton;
         'oscd-outlined-text-field': typeof OscdOutlinedTextField;
         'oscd-text-button': typeof OscdTextButton;
+        'oscd-filled-button': typeof OscdFilledButton;
         'report-control-element-editor': typeof ReportControlElementEditor;
         'oscd-icon-button': typeof OscdIconButton;
         'oscd-icon': typeof OscdIcon;
