@@ -233,7 +233,7 @@ export function getFcdaInstDesc(fcda: Element): fcdaDesc {
   doNames
     .concat(daAsSDI)
     .slice(1)
-    .forEach(sdiName => {
+    .forEach((sdiName) => {
       const sdi = previousDI.querySelector(`:scope > SDI[name="${sdiName}"]`);
       if (sdi) {
         previousDI = sdi;

@@ -2,7 +2,7 @@ import { css, html, TemplateResult } from 'lit';
 import { query, state } from 'lit/decorators.js';
 
 import { OscdActionList } from '@omicronenergy/oscd-ui/action-list/OscdActionList.js';
-import { OscdCheckbox } from '@omicronenergy/oscd-ui/checkbox/OscdCheckbox.js';
+import { OscdFilledButton } from '@omicronenergy/oscd-ui/button/OscdFilledButton.js';
 import { OscdDialog } from '@omicronenergy/oscd-ui/dialog/OscdDialog.js';
 import { OscdIcon } from '@omicronenergy/oscd-ui/icon/OscdIcon.js';
 import { OscdIconButton } from '@omicronenergy/oscd-ui/iconbutton/OscdIconButton.js';
@@ -14,15 +14,12 @@ import { OscdOutlinedButton } from '@omicronenergy/oscd-ui/button/OscdOutlinedBu
 import { OscdOutlinedTextField } from '@omicronenergy/oscd-ui/textfield/OscdOutlinedTextField.js';
 import { OscdTextButton } from '@omicronenergy/oscd-ui/button/OscdTextButton.js';
 
-import type { EditV2, Insert } from '@openscd/oscd-api';
 import { newEditEventV2 } from '@openscd/oscd-api/utils.js';
 import {
   createReportControl,
-  getReference,
   identity,
   removeControlBlock,
 } from '@openscd/scl-lib';
-import { createElement } from '@openscd/scl-lib/dist/foundation/utils.js';
 
 import { pathIdentity, styles } from '../../foundation.js';
 
@@ -30,10 +27,11 @@ import { DataSetElementEditor } from '../dataset/data-set-element-editor.js';
 import { ReportControlElementEditor } from './report-control-element-editor.js';
 import { BaseElementEditor } from '../base-element-editor.js';
 
+import { ClientLnAssignmentDialog } from './client-ln-assignment-dialog.js';
+
 export class ReportControlEditor extends BaseElementEditor {
   static scopedElements = {
     'oscd-action-list': OscdActionList,
-    'oscd-checkbox': OscdCheckbox,
     'data-set-element-editor': DataSetElementEditor,
     'oscd-list': OscdList,
     'oscd-list-item': OscdListItem,
@@ -42,28 +40,21 @@ export class ReportControlEditor extends BaseElementEditor {
     'oscd-outlined-button': OscdOutlinedButton,
     'oscd-outlined-text-field': OscdOutlinedTextField,
     'oscd-text-button': OscdTextButton,
+    'oscd-filled-button': OscdFilledButton,
     'report-control-element-editor': ReportControlElementEditor,
     'oscd-icon-button': OscdIconButton,
     'oscd-icon': OscdIcon,
     'oscd-dialog': OscdDialog,
+    'clientln-assignment-dialog': ClientLnAssignmentDialog,
   };
-
-  @state()
-  private clientLnAssignmentReport?: Element;
 
   @state()
   private reportFilter = '';
 
-  @state()
-  private selectedClientLnIds: string[] = [];
-
-  @state()
-  private initialClientLnIds: string[] = [];
-
   @query('.selectionlist') selectionList!: HTMLElement;
 
-  @query('.client-ln.assignment.dialog')
-  clientLnAssignmentDialog!: OscdDialog;
+  @query('clientln-assignment-dialog')
+  clientLnAssignmentDialog!: ClientLnAssignmentDialog;
 
   @query('.change.scl.element') selectReportControlButton!: OscdOutlinedButton;
 
@@ -72,14 +63,6 @@ export class ReportControlEditor extends BaseElementEditor {
 
   @query('data-set-element-editor')
   dataSetElementEditor!: DataSetElementEditor;
-
-  private get reportClientLNs(): Element[] {
-    return Array.from(
-      this.doc.querySelectorAll(
-        ':root > IED > AccessPoint > LN, :root > IED > AccessPoint > Server > LDevice > LN, :root > IED > AccessPoint > Server > LDevice > LN0',
-      ),
-    );
-  }
 
   private renderElementEditorContainer(): TemplateResult {
     if (this.selectedControlBlock !== undefined) {
@@ -141,13 +124,10 @@ export class ReportControlEditor extends BaseElementEditor {
     }
   }
 
-  private openClientLnAssignmentDialog(reportControl: Element): void {
-    this.clientLnAssignmentReport = reportControl;
-    this.selectedClientLnIds = this.assignedClientLogicalNodes(
-      reportControl,
-    ).map(logicalNode => this.clientLnId(logicalNode));
-    this.initialClientLnIds = [...this.selectedClientLnIds];
-    this.clientLnAssignmentDialog.show();
+  private async openClientLnAssignmentDialog(
+    reportControl: Element,
+  ): Promise<void> {
+    this.clientLnAssignmentDialog.open(reportControl);
   }
 
   private showReportActionsMenu(event: Event): void {
@@ -157,168 +137,6 @@ export class ReportControlEditor extends BaseElementEditor {
     const menu = button.nextElementSibling as OscdMenu;
     menu.anchorElement = button;
     menu.show();
-  }
-
-  private clientLnId(logicalNode: Element): string {
-    const ied = logicalNode.closest('IED');
-    const accessPoint = logicalNode.closest('AccessPoint');
-    const lDevice = logicalNode.closest('LDevice');
-
-    return [
-      ied?.getAttribute('name') ?? '',
-      accessPoint?.getAttribute('name') ?? '',
-      lDevice?.getAttribute('inst') ?? '',
-      logicalNode.getAttribute('prefix') ?? '',
-      logicalNode.getAttribute('lnClass') ?? '',
-      logicalNode.getAttribute('inst') ?? '',
-    ].join('|');
-  }
-
-  private hasClientLn(reportControl: Element, logicalNode: Element): boolean {
-    const [iedName, apRef, ldInst, prefix, lnClass, lnInst] =
-      this.clientLnId(logicalNode).split('|');
-
-    return Array.from(
-      reportControl.querySelectorAll(':scope > RptEnabled > ClientLN'),
-    ).some(
-      clientLn =>
-        (clientLn.getAttribute('iedName') ?? '') === iedName &&
-        (clientLn.getAttribute('apRef') ?? '') === apRef &&
-        (clientLn.getAttribute('ldInst') ?? '') === ldInst &&
-        (clientLn.getAttribute('prefix') ?? '') === prefix &&
-        (clientLn.getAttribute('lnClass') ?? '') === lnClass &&
-        (clientLn.getAttribute('lnInst') ?? '') === lnInst,
-    );
-  }
-
-  private clientLnForLogicalNode(
-    reportControl: Element,
-    logicalNode: Element,
-  ): Element | undefined {
-    const [iedName, apRef, ldInst, prefix, lnClass, lnInst] =
-      this.clientLnId(logicalNode).split('|');
-
-    return Array.from(
-      reportControl.querySelectorAll(':scope > RptEnabled > ClientLN'),
-    ).find(
-      clientLn =>
-        (clientLn.getAttribute('iedName') ?? '') === iedName &&
-        (clientLn.getAttribute('apRef') ?? '') === apRef &&
-        (clientLn.getAttribute('ldInst') ?? '') === ldInst &&
-        (clientLn.getAttribute('prefix') ?? '') === prefix &&
-        (clientLn.getAttribute('lnClass') ?? '') === lnClass &&
-        (clientLn.getAttribute('lnInst') ?? '') === lnInst,
-    );
-  }
-
-  private assignedClientLogicalNodes(reportControl: Element): Element[] {
-    return this.reportClientLNs.filter(logicalNode =>
-      this.hasClientLn(reportControl, logicalNode),
-    );
-  }
-
-  private clientLnInsert(
-    reportControl: Element,
-    logicalNode: Element,
-    parent: Element,
-  ): Insert {
-    return {
-      parent,
-      node: createElement(reportControl.ownerDocument, 'ClientLN', {
-        iedName: logicalNode.closest('IED')?.getAttribute('name') ?? null,
-        apRef: logicalNode.closest('AccessPoint')?.getAttribute('name') ?? null,
-        ldInst: logicalNode.closest('LDevice')?.getAttribute('inst') ?? 'LD0',
-        prefix: logicalNode.getAttribute('prefix') ?? '',
-        lnClass: logicalNode.getAttribute('lnClass') ?? '',
-        lnInst: logicalNode.getAttribute('inst') ?? '',
-      }),
-      reference: null,
-    };
-  }
-
-  private updateSelectedClientLns(): void {
-    const reportControl = this.clientLnAssignmentReport;
-    if (!reportControl) {
-      return;
-    }
-
-    const selectedIds = new Set(this.selectedClientLnIds);
-    const initialIds = new Set(this.initialClientLnIds);
-    const logicalNodesById = new Map(
-      this.reportClientLNs.map(
-        logicalNode => [this.clientLnId(logicalNode), logicalNode] as const,
-      ),
-    );
-
-    let rptEnabled = reportControl.querySelector(':scope > RptEnabled');
-    const edits: EditV2[] = [];
-
-    const clientLnsToAdd = this.selectedClientLnIds
-      .filter(id => !initialIds.has(id))
-      .map(id => logicalNodesById.get(id))
-      .filter((logicalNode): logicalNode is Element => !!logicalNode);
-
-    const clientLnsToRemove = this.initialClientLnIds
-      .filter(id => !selectedIds.has(id))
-      .map(id => logicalNodesById.get(id))
-      .filter((logicalNode): logicalNode is Element => !!logicalNode)
-      .map(logicalNode =>
-        this.clientLnForLogicalNode(reportControl, logicalNode),
-      )
-      .filter((clientLn): clientLn is Element => !!clientLn);
-
-    if (!rptEnabled && clientLnsToAdd.length) {
-      rptEnabled = createElement(reportControl.ownerDocument, 'RptEnabled', {
-        max: `${Math.max(1, clientLnsToAdd.length)}`,
-      });
-
-      edits.push({
-        parent: reportControl,
-        node: rptEnabled,
-        reference: getReference(reportControl, 'RptEnabled'),
-      });
-    }
-
-    clientLnsToAdd.forEach(logicalNode => {
-      if (!this.hasClientLn(reportControl, logicalNode)) {
-        edits.push(
-          this.clientLnInsert(reportControl, logicalNode, rptEnabled!),
-        );
-      }
-    });
-
-    clientLnsToRemove.forEach(clientLn => {
-      edits.push({ node: clientLn });
-    });
-
-    if (edits.length > 0) {
-      this.dispatchEvent(
-        newEditEventV2(edits, {
-          title: `Update Client LNs of ReportControl ${identity(reportControl)}`,
-        }),
-      );
-    }
-
-    this.clientLnAssignmentDialog.close();
-    this.clientLnAssignmentReport = undefined;
-    this.selectedClientLnIds = [];
-    this.initialClientLnIds = [];
-  }
-
-  private toggleClientLnSelection(
-    logicalNode: Element,
-    selected: boolean,
-  ): void {
-    const id = this.clientLnId(logicalNode);
-    const selectedIds = new Set(this.selectedClientLnIds);
-
-    if (selected) {
-      selectedIds.add(id);
-    } else {
-      selectedIds.delete(id);
-    }
-
-    this.selectedClientLnIds = [...selectedIds];
   }
 
   private matchesReportFilter(ied: Element, reports: Element[]): boolean {
@@ -335,76 +153,6 @@ export class ReportControlEditor extends BaseElementEditor {
         pathIdentity(reportControl),
       ]),
     ].some(term => term.toLowerCase().includes(filter));
-  }
-
-  private renderClientLnAssignmentDialog(): TemplateResult {
-    const reportControl = this.clientLnAssignmentReport;
-    const selectedIds = new Set(this.selectedClientLnIds);
-    const rptEnabled = reportControl?.querySelector(':scope > RptEnabled');
-    const maxClients = parseInt(rptEnabled?.getAttribute('max') ?? '1', 10);
-    const clientLimit = Number.isNaN(maxClients) ? 1 : maxClients;
-    const selectedClientCount = selectedIds.size;
-    const clientLimitReached = selectedClientCount >= clientLimit;
-    const hasClientLnChanges =
-      this.selectedClientLnIds.some(
-        id => !this.initialClientLnIds.includes(id),
-      ) ||
-      this.initialClientLnIds.some(
-        id => !this.selectedClientLnIds.includes(id),
-      );
-
-    return html`<oscd-dialog class="client-ln assignment dialog">
-      <div slot="headline">Edit Clients</div>
-      <div slot="content" class="client-ln-list">
-        <div class="client-ln-count">
-          ${selectedClientCount}/${clientLimit} clients
-        </div>
-        ${this.reportClientLNs.map(logicalNode => {
-          const id = this.clientLnId(logicalNode);
-          const selected = selectedIds.has(id);
-          const disabled = clientLimitReached && !selected;
-
-          return html`<label class="client-ln-option">
-            <oscd-checkbox
-              ?checked=${selected}
-              ?disabled=${disabled}
-              @change=${(event: Event) => {
-                const checkbox = event.target as OscdCheckbox;
-                this.toggleClientLnSelection(logicalNode, checkbox.checked);
-              }}
-            ></oscd-checkbox>
-            <span>
-              <span class="client-ln-name"
-                >${this.logicalNodeName(logicalNode)}</span
-              >
-              <span class="client-ln-path">${identity(logicalNode)}</span>
-            </span>
-          </label>`;
-        })}
-      </div>
-      <div slot="actions">
-        <oscd-text-button
-          @click=${() => {
-            this.clientLnAssignmentDialog.close();
-            this.clientLnAssignmentReport = undefined;
-            this.selectedClientLnIds = [];
-            this.initialClientLnIds = [];
-          }}
-          >Cancel</oscd-text-button
-        >
-        <oscd-text-button
-          ?disabled=${!hasClientLnChanges}
-          @click=${() => this.updateSelectedClientLns()}
-          >Apply</oscd-text-button
-        >
-      </div>
-    </oscd-dialog>`;
-  }
-
-  private logicalNodeName(logicalNode: Element): string {
-    return `${logicalNode.getAttribute('prefix') ?? ''}${logicalNode.getAttribute(
-      'lnClass',
-    )}${logicalNode.getAttribute('inst') ?? ''}`;
   }
 
   private renderReportListItem(reportControl: Element): TemplateResult {
@@ -456,7 +204,7 @@ export class ReportControlEditor extends BaseElementEditor {
         }}
       ></oscd-outlined-text-field>
       <oscd-list>
-        ${Array.from(this.doc.querySelectorAll(':root > IED')).map(ied => {
+        ${Array.from(this.doc.querySelectorAll(':root > IED')).map((ied) => {
           const canCreateReportControl = this.canCreateReportControl(ied);
           const rpControls = Array.from(
             ied.querySelectorAll(
@@ -492,7 +240,9 @@ export class ReportControlEditor extends BaseElementEditor {
               .map(reportControl => this.renderReportListItem(reportControl))}`;
         })}
       </oscd-list>
-      ${this.renderClientLnAssignmentDialog()}
+      <clientln-assignment-dialog
+        .doc=${this.doc}
+      ></clientln-assignment-dialog>
     </div>`;
   }
 
@@ -574,36 +324,6 @@ export class ReportControlEditor extends BaseElementEditor {
 
     oscd-menu {
       z-index: 20;
-    }
-
-    .client-ln-list {
-      display: flex;
-      flex-direction: column;
-      min-width: min(640px, 80vw);
-      max-height: min(520px, 60vh);
-      overflow: auto;
-    }
-
-    .client-ln-option {
-      display: grid;
-      grid-template-columns: auto minmax(0, 1fr);
-      gap: 12px;
-      align-items: center;
-      padding: 8px 0;
-      font-family: var(--oscd-text-font), sans-serif;
-    }
-
-    .client-ln-name,
-    .client-ln-path {
-      display: block;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .client-ln-path {
-      color: var(--md-sys-color-on-surface-variant);
-      font-size: 0.875rem;
     }
 
     data-set-element-editor {

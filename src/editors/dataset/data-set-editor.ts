@@ -63,7 +63,7 @@ export class DataSetEditor extends ScopedElementsMixin(LitElement) {
 
   private renderSelectionList(): TemplateResult {
     const items = Array.from(this.doc.querySelectorAll(':root > IED')).flatMap(
-      ied => {
+      (ied) => {
         const dataSets = Array.from(
           ied.querySelectorAll(
             ':scope > AccessPoint > Server > LDevice > LN0 > DataSet, :scope > AccessPoint > Server > LDevice > LN > DataSet',

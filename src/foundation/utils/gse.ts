@@ -50,7 +50,7 @@ export function checkGSEDiff(
     return valueDiff;
   }
 
-  const instTypeDiff = Object.keys(attrs).some(key => {
+  const instTypeDiff = Object.keys(attrs).some((key) => {
     const pType = pElement(gSE, key);
     if (!pType) {
       return false;

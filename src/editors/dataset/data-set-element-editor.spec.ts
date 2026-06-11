@@ -14,7 +14,7 @@ const doc = new DOMParser().parseFromString(dataSetDoc, 'application/xml');
 const dataSet = doc.querySelector('LDevice[inst="ldInst1"] DataSet')!;
 
 function timeout(ms: number) {
-  return new Promise(res => {
+  return new Promise((res) => {
     setTimeout(res, ms);
   });
 }

@@ -19,7 +19,7 @@ window.customElements.define(
 );
 
 function timeout(ms: number) {
-  return new Promise(res => {
+  return new Promise((res) => {
     setTimeout(res, ms);
   });
 }

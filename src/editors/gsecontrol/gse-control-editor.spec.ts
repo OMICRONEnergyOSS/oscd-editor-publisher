@@ -16,7 +16,7 @@ import { GseControlEditor } from './gse-control-editor.js';
 window.customElements.define('gse-control-editor', GseControlEditor);
 
 function timeout(ms: number) {
-  return new Promise(res => {
+  return new Promise((res) => {
     setTimeout(res, ms);
   });
 }

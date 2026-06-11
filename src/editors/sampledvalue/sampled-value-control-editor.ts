@@ -73,7 +73,7 @@ export class SampledValueControlEditor extends BaseElementEditor {
 
   private renderSelectionList(): TemplateResult {
     const items = Array.from(this.doc.querySelectorAll(':root > IED')).flatMap(
-      ied => {
+      (ied) => {
         const smvControls = Array.from(
           ied.querySelectorAll(
             ':scope > AccessPoint > Server > LDevice > LN0 > SampledValueControl',

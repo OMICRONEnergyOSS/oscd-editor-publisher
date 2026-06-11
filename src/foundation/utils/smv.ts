@@ -42,7 +42,7 @@ export function checkSMVDiff(
     return false;
   }
 
-  const instTypeDiff = Object.keys(attributes.pTypes).some(key => {
+  const instTypeDiff = Object.keys(attributes.pTypes).some((key) => {
     const pType = pElement(sMV, key);
     if (!pType) {
       return false;

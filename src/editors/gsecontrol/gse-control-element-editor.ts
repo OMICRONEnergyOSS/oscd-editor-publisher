@@ -249,7 +249,7 @@ export class GseControlElementEditor extends ScopedElementsMixin(LitElement) {
     );
 
     const attributes: Record<string, string | null> = {};
-    ['MAC-Address', 'APPID', 'VLAN-ID', 'VLAN-PRIORITY'].forEach(key => {
+    ['MAC-Address', 'APPID', 'VLAN-ID', 'VLAN-PRIORITY'].forEach((key) => {
       if (!attributes[key]) {
         attributes[key] = pElementContent(gSE, key);
       }

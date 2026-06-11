@@ -136,28 +136,29 @@ export default class PublisherPlugin extends ScopedElementsMixin(LitElement) {
     * {
       --oscd-primary: var(--oscd-theme-primary, #0b335b);
       --oscd-secondary: var(--oscd-theme-secondary, #2485e5);
-      --oscd-base00: var(--oscd-theme-base01, #46505d);
+      --oscd-base00: var(--oscd-theme-base00, #46505d);
       --oscd-base01: var(--oscd-theme-base01, #3d4651);
-      --oscd-base2: var(--oscd-theme-base01, #f3f5f6);
-      --oscd-base3: var(--oscd-theme-base01, #FFF);
-      --oscd-font: var(--oscd-theme-font, 'Roboto');
-      font-family: var(--oscd-font);
+      --oscd-base2: var(--oscd-theme-base2, #f3f5f6);
+      --oscd-base3: var(--oscd-theme-base3, #FFF);
+      --oscd-text-font: var(--oscd-theme-text-font, 'Roboto');
+      --oscd-text-font-mono: var(--oscd-theme-text-font-mono, 'Roboto Mono');
+      --oscd-icon-font: var(--oscd-theme-icon-font, 'Material Symbols Outlined');
 
       --md-sys-color-primary: var(--oscd-primary);
       --md-sys-color-secondary: var(--oscd-secondary);
-      --md-outlined-text-field-input-text-color: var(--oscd-base01);
+      /* --md-outlined-text-field-input-text-color: var(--oscd-base01); */
       --md-sys-color-surface: var(--oscd-base3);
       --md-sys-color-on-surface: var(--oscd-base00);
-      --md-sys-color-on-primary: var(--oscd-base2);
+      --md-sys-color-on-primary: var(--oscd-base3);
       --md-sys-color-on-surface-variant: var(--oscd-base00);
       --md-menu-container-color: var(--oscd-base3);
-      --md-sys-color-surface-container-highest: var(--oscd-base2);
+      --md-sys-color-surface-container-highest: var(--oscd-base3);
       --oscd-dialog-container-color: var(--oscd-base3);
+      font-family: var(--oscd-text-font);
 
       --md-list-item-activated-background: rgb(
         from var(--oscd-primary) r g b / 0.38
       );
-      font-family: var(--oscd-font);
     }
 
     .hidden {
@@ -182,43 +183,43 @@ export default class PublisherPlugin extends ScopedElementsMixin(LitElement) {
         #005ac1
       );
       --md-outlined-segmented-button-selected-label-text-color: var(
-        --md-sys-color-on-primary,
+        --oscd-base2,
         #ffffff
       );
       --md-outlined-segmented-button-selected-icon-color: var(
-        --md-sys-color-on-primary,
+        --oscd-base2,
         #ffffff
       );
       --md-outlined-segmented-button-selected-hover-label-text-color: var(
-        --md-sys-color-on-primary,
+        --oscd-base3,
         #ffffff
       );
       --md-outlined-segmented-button-selected-hover-icon-color: var(
-        --md-sys-color-on-primary,
+        --oscd-base3,
         #ffffff
       );
       --md-outlined-segmented-button-selected-focus-label-text-color: var(
-        --md-sys-color-on-primary,
+        --oscd-base3,
         #ffffff
       );
       --md-outlined-segmented-button-selected-focus-icon-color: var(
-        --md-sys-color-on-primary,
+        --oscd-base3,
         #ffffff
       );
       --md-outlined-segmented-button-selected-pressed-label-text-color: var(
-        --md-sys-color-on-primary,
+        --oscd-base2,
         #ffffff
       );
       --md-outlined-segmented-button-selected-pressed-icon-color: var(
-        --md-sys-color-on-primary,
+        --oscd-base2,
         #ffffff
       );
       --md-outlined-segmented-button-selected-hover-state-layer-color: var(
-        --md-sys-color-on-primary,
+        --oscd-base2,
         #ffffff
       );
       --md-outlined-segmented-button-selected-pressed-state-layer-color: var(
-        --md-sys-color-on-primary,
+        --oscd-base3,
         #ffffff
       );
     }

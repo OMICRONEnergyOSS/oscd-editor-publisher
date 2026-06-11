@@ -12,7 +12,7 @@ function dataAttributeObject(da: Element, daiOrsdi?: Element): Tree {
     return tree;
   }
 
-  Array.from(daType.querySelectorAll(':scope > BDA')).forEach(bda => {
+  Array.from(daType.querySelectorAll(':scope > BDA')).forEach((bda) => {
     const name = bda.getAttribute('name');
     const sdiOrDai =
       daiOrsdi?.querySelector(
@@ -53,7 +53,7 @@ function subDataObjectsObject(sdo: Element, sDiOrDai?: Element): Tree {
   }
 
   Array.from(doType.querySelectorAll(':scope > SDO, :scope > DA')).forEach(
-    sDoOrDa => {
+    (sDoOrDa) => {
       if (sDoOrDa.tagName === 'SDO') {
         const name = sDoOrDa.getAttribute('name') ?? 'UNKNOWN_SDO';
         const sdi =
@@ -117,7 +117,7 @@ function dataObjectObject(dO: Element, dOI?: Element): Tree {
   }
 
   Array.from(doType.querySelectorAll(':scope > SDO, :scope > DA')).forEach(
-    sDoOrDa => {
+    (sDoOrDa) => {
       if (sDoOrDa.tagName === 'SDO') {
         const name = sDoOrDa.getAttribute('name') ?? 'UNKNOWN_SDO';
         const sDi =
@@ -173,7 +173,7 @@ function anyLnObject(anyLn: Element): Tree {
     return tree;
   }
 
-  Array.from(lnType.querySelectorAll('DO')).forEach(dO => {
+  Array.from(lnType.querySelectorAll('DO')).forEach((dO) => {
     const name = dO.getAttribute('name') ?? 'UNKNOWN_DO';
     const dOi =
       anyLn.querySelector(`:scope > DOI[name="${name}"]`) ?? undefined;
@@ -197,7 +197,7 @@ function lDeviceObject(lDevice: Element): Tree {
   const tree: Tree = {};
   const children: Tree = {};
 
-  Array.from(lDevice.querySelectorAll('LN0,LN')).forEach(anyLn => {
+  Array.from(lDevice.querySelectorAll('LN0,LN')).forEach((anyLn) => {
     const desc = anyLn.getAttribute('desc');
 
     const anyLnClass = `${anyLn.getAttribute('prefix') ?? ''} ${
@@ -217,7 +217,7 @@ function lDeviceObject(lDevice: Element): Tree {
 export function dataAttributeTree(server: Element): Tree {
   const tree: Tree = {};
 
-  Array.from(server.querySelectorAll('LDevice')).forEach(lDevice => {
+  Array.from(server.querySelectorAll('LDevice')).forEach((lDevice) => {
     const desc = lDevice.getAttribute('desc');
 
     const lDeviceInst = `${lDevice.getAttribute('inst') ?? 'UNKNOWN_LDEVICE'}${
